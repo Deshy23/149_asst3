@@ -103,7 +103,8 @@ void saxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     // end timing after result has been copied back into host memory
     double endTime = CycleTimer::currentSeconds();
 
-    cudaError_t errCode = cudaPeekAtLastError();
+    // cudaError_t errCode = cudaPeekAtLastError();
+    errCode = cudaPeekAtLastError();
     if (errCode != cudaSuccess) {
         fprintf(stderr, "WARNING: A CUDA error occured: code=%d, %s\n",
 		errCode, cudaGetErrorString(errCode));
