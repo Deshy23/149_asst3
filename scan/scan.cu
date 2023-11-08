@@ -103,36 +103,43 @@ void exclusive_scan(int* input, int N, int* result)
     // }
 
 // }
-    N = nextPow2(N);
+    int rounded = nextPow2(N);
+    int tmp = 0;
     int* device_output = nullptr;
-    cudaMalloc(&device_output, N*sizeof(int));
+    cudaMalloc(&device_output, rounded*sizeof(int));
     int* device_input = nullptr;
-    cudaMalloc(&device_input, N*sizeof(int));  
+    cudaMalloc(&device_input, rounded*sizeof(int));  
     cudaMemcpy(device_input, input, N*sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(device_output, result, N*sizeof(int), cudaMemcpyHostToDevice);
+    for(int i = N; i < rounded; i ++){
+        cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
+        cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
+    }
     //upsweep
-    int threadsPerBlock = 512;
-    for (int two_d = 1; two_d < N/2; two_d*=2) {
-        
+    int threadsPerBlock = 1;
+    for (int two_d = 1; two_d < rounded/2; two_d*=2) {
         int two_dplus1 =  2 * two_d;
-        int blocks = ((N/two_dplus1) + 1) / threadsPerBlock;
+        int blocks = (rounded/two_dplus1) / threadsPerBlock;
         // parallel_for (int i = 0; i < N; i += two_dplus1) {
         //     output[i+two_dplus1-1] += output[i+two_d-1];
         // }
-        usweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d, two_dplus1);
+        usweep_kernel<<<blocks, threadsPerBlock>>>(rounded, device_input, device_output, two_d, two_dplus1);
         cudaDeviceSynchronize();
-        cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
+        cudaMemcpy(device_input, device_output, rounded*sizeof(int), cudaMemcpyDeviceToDevice);
     }
     // device_input[N-1] = 0;
     // device_output[N-1] = 0;
     // printf("%d", input[0]);
-    int tmp = 0;
-    cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
+    // cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
+    for(int i = N-1; i < rounded; i ++){
+        cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
+        cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
+    }
     // downsweep phase
-    for (int two_d = N/2; two_d >= 1; two_d /= 2) {
+    for (int two_d = rounded/2; two_d >= 1; two_d /= 2) {
         int two_dplus1 = 2*two_d;
-        int blocks = ((N/two_dplus1) + 1) / threadsPerBlock;
-        dsweep_kernel<<<blocks, threadsPerBlock>>>(N, device_output, two_d, two_dplus1);
+        int blocks = (rounded/two_dplus1) / threadsPerBlock;
+        dsweep_kernel<<<blocks, threadsPerBlock>>>(rounded, device_output, two_d, two_dplus1);
         cudaDeviceSynchronize();
         // cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
         // cudaDeviceSynchronize();
