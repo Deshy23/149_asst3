@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -30,6 +31,7 @@ static inline int nextPow2(int n) {
 __global__ void
 usweep_kernel(int N, int* input, int* output, int two_d) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
+    index *= 2;
     // int t = output[index+two_d-1];
     int two_dplus1 =  2 * two_d;
     if ((index+two_dplus1-1) < N){
@@ -44,17 +46,16 @@ dsweep_kernel(int N, int* input, int* output, int two_d) {
     // block, and given the block we are in (in this example only a 1D
     // calculation is needed so the code only looks at the .x terms of
     // blockDim and threadIdx.
-    // int index = blockIdx.x * blockDim.x + threadIdx.x;
-    // // int t = output[index+two_d-1];
-
-    // // this check is necessary to make the code work for values of N
-    // // that are not a multiple of the thread block size (blockDim.x)
-    // int two_dplus1 =  2 * two_d;
-    // if (index+two_dplus1-1 < N){
-    //     output[index+two_d-1] = input[index+two_dplus1-1];
-    //     output[index+two_dplus1-1] += input[index+two_d-1];
-    // }
-    return;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    // int t = output[index+two_d-1];
+    index *= 2;
+    // this check is necessary to make the code work for values of N
+    // that are not a multiple of the thread block size (blockDim.x)
+    int two_dplus1 =  2 * two_d;
+    if (index+two_dplus1-1 < N){
+        output[index+two_d-1] = input[index+two_dplus1-1];
+        output[index+two_dplus1-1] += input[index+two_d-1];
+    }
 }
 
 // exclusive_scan --
@@ -121,7 +122,7 @@ void exclusive_scan(int* input, int N, int* result)
     printf("yo");
     for (int two_d = 1; two_d <= N/2; two_d*=2) {
         int threadsPerBlock = 512;
-        int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
+        int blocks = ((N/two_d) + threadsPerBlock - 1) / threadsPerBlock;
         // parallel_for (int i = 0; i < N; i += two_dplus1) {
         //     output[i+two_dplus1-1] += output[i+two_d-1];
         // }
@@ -134,7 +135,7 @@ void exclusive_scan(int* input, int N, int* result)
     // downsweep phase
     for (int two_d = N/2; two_d >= 1; two_d /= 2) {
         int threadsPerBlock = 512;
-        int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
+        int blocks = ((N/two_d) + threadsPerBlock - 1) / threadsPerBlock;
         int two_dplus1 = 2*two_d;
         dsweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d);
         cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
