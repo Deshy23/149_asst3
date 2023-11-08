@@ -29,12 +29,13 @@ static inline int nextPow2(int n) {
 
 __global__ void
 usweep_kernel(int N, int* input, int* output, int two_d) {
-    int index = blockIdx.x * blockDim.x + threadIdx.x;
-    // int t = output[index+two_d-1];
-    int two_dplus1 =  2 * two_d;
-    if ((index+two_dplus1-1) < N){
-        output[index+two_dplus1-1] += input[index+two_d-1];
-    }
+    // int index = blockIdx.x * blockDim.x + threadIdx.x;
+    // // int t = output[index+two_d-1];
+    // int two_dplus1 =  2 * two_d;
+    // if ((index+two_dplus1-1) < N){
+    //     output[index+two_dplus1-1] += input[index+two_d-1];
+    // }
+    return;
 }
 
 __global__ void
