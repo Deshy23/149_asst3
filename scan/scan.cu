@@ -134,6 +134,7 @@ void exclusive_scan(int* input, int N, int* result)
     // printf("%d", input[0]);
     int tmp = 0;
     cudaMemcpy(&device_input[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice); 
+    cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // downsweep phase
     // for (int two_d = N/2; two_d >= 1; two_d /= 2) {
     //     int threadsPerBlock = 512;
