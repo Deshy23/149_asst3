@@ -116,15 +116,15 @@ void exclusive_scan(int* input, int N, int* result)
     int tmp = 0;
     int* device_output = nullptr;
     cudaMalloc(&device_output, rounded*sizeof(int));
-    int* device_input = nullptr;
-    cudaMalloc(&device_input, rounded*sizeof(int));  
+    // int* device_input = nullptr;
+    // cudaMalloc(&device_input, rounded*sizeof(int));  
     // cudaMemcpy(device_input, input, N*sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(device_output, result, N*sizeof(int), cudaMemcpyHostToDevice);
     // for(int i = N; i < rounded; i ++){
     //     cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     //     cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // }
-    populate_zeroes<<<rounded - N, 1>>>(N, rounded, device_output);
+    // populate_zeroes<<<rounded - N, 1>>>(N, rounded, device_output);
     //upsweep
     int threadsPerBlock = 1;
     for (int two_d = 1; two_d < rounded/2; two_d*=2) {
@@ -145,7 +145,7 @@ void exclusive_scan(int* input, int N, int* result)
     //     cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     //     cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // }
-    populate_zeroes<<<1 + rounded - N, 1>>>(N-1, rounded, device_output);
+    // populate_zeroes<<<1 + rounded - N, 1>>>(N-1, rounded, device_output);
     // downsweep phase
     for (int two_d = rounded/2; two_d >= 1; two_d /= 2) {
         int two_dplus1 = 2*two_d;
@@ -157,7 +157,7 @@ void exclusive_scan(int* input, int N, int* result)
     }
 
     cudaMemcpy(result, device_output, N*sizeof(int), cudaMemcpyDeviceToHost);
-    cudaFree(device_input);
+    // cudaFree(device_input);
     cudaFree(device_output);
 
 }
