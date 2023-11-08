@@ -116,6 +116,7 @@ void exclusive_scan(int* input, int N, int* result)
     // }
 
 // }
+    printf("yo");
     int* device_output = nullptr;
     cudaMalloc(&device_output, N*sizeof(int));
     int* device_input = nullptr;
