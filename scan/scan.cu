@@ -41,18 +41,13 @@ usweep_kernel(int N, int* input, int* output, int two_d, int two_dplus1) {
 __global__ void
 dsweep_kernel(int N, int* input, int* output, int two_d, int two_dplus1) {
 
-    // compute overall thread index from position of thread in current
-    // block, and given the block we are in (in this example only a 1D
-    // calculation is needed so the code only looks at the .x terms of
-    // blockDim and threadIdx.
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     // int t = output[index+two_d-1];
     index *= two_dplus1;
-    // this check is necessary to make the code work for values of N
-    // that are not a multiple of the thread block size (blockDim.x)
     if (index+two_dplus1-1 < N){
-        output[index+two_d-1] = input[index+two_dplus1-1];
-        output[index+two_dplus1-1] += input[index+two_d-1];
+        int tmp = output[index+two_d-1]
+        output[index+two_d-1] = output[index+two_dplus1-1];
+        output[index+two_dplus1-1] += tmp;
     }
 }
 
@@ -136,14 +131,14 @@ void exclusive_scan(int* input, int N, int* result)
     cudaMemcpy(&device_input[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice); 
     cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // downsweep phase
-    // for (int two_d = N/2; two_d >= 1; two_d /= 2) {
-    //     int threadsPerBlock = 512;
-    //     int two_dplus1 = 2*two_d;
-    //     int blocks = ((N/two_dplus1) + threadsPerBlock - 1) / threadsPerBlock;
-    //     dsweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d, two_dplus1);
-    //     cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
-    //     cudaDeviceSynchronize();
-    // }
+    for (int two_d = N/2; two_d >= 1; two_d /= 2) {
+        int threadsPerBlock = 512;
+        int two_dplus1 = 2*two_d;
+        int blocks = ((N/two_dplus1) + threadsPerBlock - 1) / threadsPerBlock;
+        dsweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d, two_dplus1);
+        cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
+        cudaDeviceSynchronize();
+    }
 
     cudaMemcpy(result, device_output, N*sizeof(int), cudaMemcpyDeviceToHost);
     cudaFree(device_input);
