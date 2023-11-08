@@ -141,6 +141,7 @@ void exclusive_scan(int* input, int N, int* result)
     }
 
     cudaMemcpy(result, device_output, N*sizeof(int), cudaMemcpyDeviceToHost);
+    cudaDeviceSynchronize();
     cudaFree(device_input);
     cudaFree(device_output);
 
