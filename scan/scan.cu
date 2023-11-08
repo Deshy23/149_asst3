@@ -135,14 +135,14 @@ void exclusive_scan(int* input, int N, int* result)
     int tmp = 0;
     cudaMemcpy(&device_input[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice); 
     // downsweep phase
-    for (int two_d = N/2; two_d >= 1; two_d /= 2) {
-        int threadsPerBlock = 512;
-        int two_dplus1 = 2*two_d;
-        int blocks = ((N/two_dplus1) + threadsPerBlock - 1) / threadsPerBlock;
-        dsweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d, two_dplus1);
-        cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
-        cudaDeviceSynchronize();
-    }
+    // for (int two_d = N/2; two_d >= 1; two_d /= 2) {
+    //     int threadsPerBlock = 512;
+    //     int two_dplus1 = 2*two_d;
+    //     int blocks = ((N/two_dplus1) + threadsPerBlock - 1) / threadsPerBlock;
+    //     dsweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d, two_dplus1);
+    //     cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
+    //     cudaDeviceSynchronize();
+    // }
 
     cudaMemcpy(result, device_output, N*sizeof(int), cudaMemcpyDeviceToHost);
     cudaFree(device_input);
