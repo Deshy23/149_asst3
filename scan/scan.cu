@@ -42,9 +42,7 @@ usweep_kernel(int N, int* output, int two_d, int two_dplus1) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     index *= two_dplus1;
     // int t = output[index+two_d-1];
-    if ((index+two_dplus1-1) < N){
-        output[index+two_dplus1-1] += output[index+two_d-1];
-    }
+    output[index+two_dplus1-1] += output[index+two_d-1];
 }
 
 __global__ void
@@ -53,11 +51,9 @@ dsweep_kernel(int N, int* output, int two_d, int two_dplus1) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     // int t = output[index+two_d-1];
     index *= two_dplus1;
-    if (index+two_dplus1-1 < N){
-        int tmp = output[index+two_d-1];
-        output[index+two_d-1] = output[index+two_dplus1-1];
-        output[index+two_dplus1-1] += tmp;
-    }
+    int tmp = output[index+two_d-1];
+    output[index+two_d-1] = output[index+two_dplus1-1];
+    output[index+two_dplus1-1] += tmp;
 }
 
 // exclusive_scan --
@@ -124,7 +120,7 @@ void exclusive_scan(int* input, int N, int* result)
     //     cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     //     cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // }
-    // populate_zeroes<<<rounded - N, 1>>>(N, rounded, device_output);
+    populate_zeroes<<<rounded - N, 1>>>(N, rounded, device_output);
     //upsweep
     int threadsPerBlock = 1;
     for (int two_d = 1; two_d < rounded/2; two_d*=2) {
@@ -140,12 +136,12 @@ void exclusive_scan(int* input, int N, int* result)
     // device_input[N-1] = 0;
     // device_output[N-1] = 0;
     // printf("%d", input[0]);
-    cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
+    // cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // for(int i = N-1; i < rounded; i ++){
     //     cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     //     cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // }
-    // populate_zeroes<<<1 + rounded - N, 1>>>(N-1, rounded, device_output);
+    populate_zeroes<<<1 + rounded - N, 1>>>(N-1, rounded, device_output);
     // downsweep phase
     for (int two_d = rounded/2; two_d >= 1; two_d /= 2) {
         int two_dplus1 = 2*two_d;
