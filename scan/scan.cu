@@ -117,11 +117,11 @@ void exclusive_scan(int* input, int N, int* result)
 
 // }
     int* device_output = nullptr;
-    cudaMalloc(&device_output, N*sizeof(float));
+    cudaMalloc(&device_output, N*sizeof(int));
     int* device_input = nullptr;
-    cudaMalloc(&device_input, N*sizeof(float));  
-    cudaMemcpy(device_input, input, N*sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(device_output, result, N*sizeof(float), cudaMemcpyHostToDevice);
+    cudaMalloc(&device_input, N*sizeof(int));  
+    cudaMemcpy(device_input, input, N*sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(device_output, result, N*sizeof(int), cudaMemcpyHostToDevice);
 
     //upsweep
     printf("yo");
