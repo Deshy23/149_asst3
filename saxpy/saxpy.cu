@@ -112,6 +112,7 @@ void saxpyCuda(int N, float alpha, float* xarray, float* yarray, float* resultar
     //
     cudaFree(device_x);
     cudaFree(device_y);
+    cudaFree(device_result);
 }
 
 void printCudaInfo() {

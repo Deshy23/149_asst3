@@ -27,6 +27,43 @@ static inline int nextPow2(int n) {
     return n;
 }
 
+__global__ void
+usweep_kernel(int N, int* input, int* output, int two_d) {
+
+    // compute overall thread index from position of thread in current
+    // block, and given the block we are in (in this example only a 1D
+    // calculation is needed so the code only looks at the .x terms of
+    // blockDim and threadIdx.
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    // int t = output[index+two_d-1];
+
+    // this check is necessary to make the code work for values of N
+    // that are not a multiple of the thread block size (blockDim.x)
+    if (index < N){
+        int two_dplus1 =  2 * two_d;
+        output[index+two_dplus1-1] += input[index+two_d-1];
+    }
+}
+
+__global__ void
+dsweep_kernel(int N, int* input, int* output, int two_d) {
+
+    // compute overall thread index from position of thread in current
+    // block, and given the block we are in (in this example only a 1D
+    // calculation is needed so the code only looks at the .x terms of
+    // blockDim and threadIdx.
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    // int t = output[index+two_d-1];
+
+    // this check is necessary to make the code work for values of N
+    // that are not a multiple of the thread block size (blockDim.x)
+    if (index < N){
+        int two_dplus1 =  2 * two_d;
+        output[index+two_d-1] = input[index+two_dplus1-1];
+        output[index+two_dplus1-1] += input[index+two_d-1];
+    }
+}
+
 // exclusive_scan --
 //
 // Implementation of an exclusive scan on global memory array `input`,
@@ -53,7 +90,65 @@ void exclusive_scan(int* input, int N, int* result)
     // on the CPU.  Your implementation will need to make multiple calls
     // to CUDA kernel functions (that you must write) to implement the
     // scan.
+    // void exclusive_scan_iterative(int* start, int* end, int* output) {
 
+    // int N = end - start;
+    // memmove(output, start, N*sizeof(int));
+    
+    // // upsweep phase
+    // for (int two_d = 1; two_d <= N/2; two_d*=2) {
+    //     int two_dplus1 = 2*two_d;
+    //     parallel_for (int i = 0; i < N; i += two_dplus1) {
+    //         output[i+two_dplus1-1] += output[i+two_d-1];
+    //     }
+    // }
+
+    // output[N-1] = 0;
+
+    // // downsweep phase
+    // for (int two_d = N/2; two_d >= 1; two_d /= 2) {
+    //     int two_dplus1 = 2*two_d;
+    //     parallel_for (int i = 0; i < N; i += two_dplus1) {
+    //         int t = output[i+two_d-1];
+    //         output[i+two_d-1] = output[i+two_dplus1-1];
+    //         output[i+two_dplus1-1] += t;
+    //     }
+    // }
+
+// }
+    int* device_output = nullptr;
+    cudaMalloc(&device_output, N*sizeof(float));
+    int* device_input = nullptr;
+    cudaMalloc(&device_input, N*sizeof(float));  
+    cudaMemcpy(device_input, input, N*sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(device_output, result, N*sizeof(float), cudaMemcpyHostToDevice);
+
+    //upsweep
+    for (int two_d = 1; two_d <= N/2; two_d*=2) {
+        int threadsPerBlock = 512;
+        int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
+        // parallel_for (int i = 0; i < N; i += two_dplus1) {
+        //     output[i+two_dplus1-1] += output[i+two_d-1];
+        // }
+        usweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d);
+        cudaMemcpy(device_input, device_output, N*sizeof(float), cudaMemcpyDeviceToDevice);
+    }
+
+    device_input[N-1] = 0;
+    device_output[N-1] = 0;
+
+    // downsweep phase
+    for (int two_d = N/2; two_d >= 1; two_d /= 2) {
+        int threadsPerBlock = 512;
+        int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
+        int two_dplus1 = 2*two_d;
+        dsweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d);
+        cudaMemcpy(device_input, device_output, N*sizeof(float), cudaMemcpyDeviceToDevice);
+    }
+
+    cudaMemcpy(result, device_output, N*sizeof(float), cudaMemcpyDeviceToHost);
+    cudaFree(device_input);
+    cudaFree(device_output);
 
 }
 
