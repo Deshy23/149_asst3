@@ -120,8 +120,8 @@ void exclusive_scan(int* input, int N, int* result)
         // }
         usweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d, two_dplus1);
         cudaDeviceSynchronize();
-        // cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
-        // cudaDeviceSynchronize();
+        cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
+        cudaDeviceSynchronize();
     }
     // device_input[N-1] = 0;
     // device_output[N-1] = 0;
