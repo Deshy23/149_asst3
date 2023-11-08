@@ -135,8 +135,8 @@ void exclusive_scan(int* input, int N, int* result)
         int threadsPerBlock = 512;
         int two_dplus1 = 2*two_d;
         int blocks = ((N/two_dplus1) + threadsPerBlock - 1) / threadsPerBlock;
-        dsweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d, two_dplus1);
-        cudaMemcpy(device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
+        dsweep_kernel<<<blocks, threadsPerBlock>>>(N, device_output, two_d, two_dplus1);
+        cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
         cudaDeviceSynchronize();
     }
 
