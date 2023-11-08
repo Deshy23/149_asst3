@@ -40,7 +40,7 @@ usweep_kernel(int N, int* input, int* output, int two_d) {
     // this check is necessary to make the code work for values of N
     // that are not a multiple of the thread block size (blockDim.x)
     int two_dplus1 =  2 * two_d;
-    if (index+two_dplus1-1 < N){
+    if ((index+two_dplus1-1) < N){
         output[index+two_dplus1-1] += input[index+two_d-1];
     }
 }
