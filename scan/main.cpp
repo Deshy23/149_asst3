@@ -55,13 +55,13 @@ void cpu_exclusive_scan(int* start, int* end, int* output) {
     //     }
     // }
 
-#else    
-    int N = end - start;
-    output[0] = 0;
-    for (int i = 1; i < N; i++) {
-        output[i] = output[i-1] + start[i-1];
-    }
-#endif
+// #else    
+//     int N = end - start;
+//     output[0] = 0;
+//     for (int i = 1; i < N; i++) {
+//         output[i] = output[i-1] + start[i-1];
+//     }
+// #endif
 }
 
 int cpu_find_repeats(int *start, int length, int *output) {
