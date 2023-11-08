@@ -140,7 +140,7 @@ void exclusive_scan(int* input, int N, int* result)
     // device_input[N-1] = 0;
     // device_output[N-1] = 0;
     // printf("%d", input[0]);
-    // cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // for(int i = N-1; i < rounded; i ++){
     //     cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     //     cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
