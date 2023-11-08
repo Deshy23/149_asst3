@@ -131,7 +131,7 @@ void exclusive_scan(int* input, int N, int* result)
     }
     // device_input[N-1] = 0;
     // device_output[N-1] = 0;
-
+    printf("%d",device_input[N-1]);
     // downsweep phase
     for (int two_d = N/2; two_d >= 1; two_d /= 2) {
         int threadsPerBlock = 512;
