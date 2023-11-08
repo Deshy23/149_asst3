@@ -124,6 +124,7 @@ void exclusive_scan(int* input, int N, int* result)
     cudaMemcpy(device_output, result, N*sizeof(float), cudaMemcpyHostToDevice);
 
     //upsweep
+    printf("yo");
     for (int two_d = 1; two_d <= N/2; two_d*=2) {
         int threadsPerBlock = 512;
         int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
