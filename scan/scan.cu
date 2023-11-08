@@ -43,7 +43,7 @@ usweep_kernel(int N, int* input, int* output, int two_d, int two_dplus1) {
     index *= two_dplus1;
     // int t = output[index+two_d-1];
     if ((index+two_dplus1-1) < N){
-        output[index+two_dplus1-1] += input[index+two_d-1];
+        output[index+two_dplus1-1] += output[index+two_d-1];
     }
 }
 
@@ -135,7 +135,7 @@ void exclusive_scan(int* input, int N, int* result)
         // }
         usweep_kernel<<<blocks, threadsPerBlock>>>(rounded, device_input, device_output, two_d, two_dplus1);
         // cudaDeviceSynchronize();
-        cudaMemcpy(device_input, device_output, rounded*sizeof(int), cudaMemcpyDeviceToDevice);
+    //     cudaMemcpy(device_input, device_output, rounded*sizeof(int), cudaMemcpyDeviceToDevice);
     }
     // device_input[N-1] = 0;
     // device_output[N-1] = 0;
