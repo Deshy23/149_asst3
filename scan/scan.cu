@@ -129,7 +129,8 @@ void exclusive_scan(int* input, int N, int* result)
         // parallel_for (int i = 0; i < N; i += two_dplus1) {
         //     output[i+two_dplus1-1] += output[i+two_d-1];
         // }
-        usweep_kernel<<<blocks, threadsPerBlock>>>(rounded, device_output, two_d, two_dplus1);
+        // usweep_kernel<<<blocks, threadsPerBlock>>>(rounded, device_output, two_d, two_dplus1);
+        dsweep_kernel<<<1, blocks>>>(rounded, device_output, two_d, two_dplus1);
         // cudaDeviceSynchronize();
     //     cudaMemcpy(device_input, device_output, rounded*sizeof(int), cudaMemcpyDeviceToDevice);
     }
@@ -146,7 +147,8 @@ void exclusive_scan(int* input, int N, int* result)
     for (int two_d = rounded/2; two_d >= 1; two_d /= 2) {
         int two_dplus1 = 2*two_d;
         int blocks = (rounded/two_dplus1) / threadsPerBlock;
-        dsweep_kernel<<<blocks, threadsPerBlock>>>(rounded, device_output, two_d, two_dplus1);
+        // dsweep_kernel<<<blocks, threadsPerBlock>>>(rounded, device_output, two_d, two_dplus1);
+        dsweep_kernel<<<1,blocks>>>(rounded, device_output, two_d, two_dplus1);
         // cudaDeviceSynchronize();
         // cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
         // cudaDeviceSynchronize();
