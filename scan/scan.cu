@@ -258,11 +258,11 @@ int find_repeats(int* device_input, int length, int* device_output) {
     // int *counter;
     // cudaMalloc(&counter, sizeof(int));
     // *counter = 0;
-    // int *inarray = nullptr;
-    // cudaMalloc(&inarray, sizeof(int) * (length + 1));
-    // int *outarray = nullptr;
-    // cudaMalloc(&outarray, sizeof(int) * (length + 1));
-    // exclusive_scan(int* input, int N, int* result)
+    // int *dinarray = nullptr;
+    // // cudaMalloc(&dinarray, sizeof(int) * (length + 1));
+    // int *doutarray = nullptr;
+    // // cudaMalloc(&doutarray, sizeof(int) * (length + 1));
+    // exclusive_scan(input, int N, int* result)
     // int N = nextPow2(length);
     return 0; 
 }
