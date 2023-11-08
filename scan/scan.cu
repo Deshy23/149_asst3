@@ -45,9 +45,6 @@ usweep_kernel(int N, int* input, int* output, int two_d, int two_dplus1) {
     if ((index+two_dplus1-1) < N){
         output[index+two_dplus1-1] += input[index+two_d-1];
     }
-    else{
-        output[index+two_dplus1-1] = 0;
-    }
 }
 
 __global__ void
@@ -143,7 +140,7 @@ void exclusive_scan(int* input, int N, int* result)
     // device_input[N-1] = 0;
     // device_output[N-1] = 0;
     // printf("%d", input[0]);
-    cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
+    // cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // for(int i = N-1; i < rounded; i ++){
     //     cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     //     cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
