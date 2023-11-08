@@ -117,15 +117,15 @@ void exclusive_scan(int* input, int N, int* result)
 
 // }
     printf("yo");
-    // int* device_output = nullptr;
-    // cudaMalloc(&device_output, N*sizeof(int));
-    // int* device_input = nullptr;
-    // cudaMalloc(&device_input, N*sizeof(int));  
-    // cudaMemcpy(device_input, input, N*sizeof(int), cudaMemcpyHostToDevice);
-    // cudaMemcpy(device_output, result, N*sizeof(int), cudaMemcpyHostToDevice);
+    int* device_output = nullptr;
+    cudaMalloc(&device_output, N*sizeof(int));
+    int* device_input = nullptr;
+    cudaMalloc(&device_input, N*sizeof(int));  
+    cudaMemcpy(device_input, input, N*sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(device_output, result, N*sizeof(int), cudaMemcpyHostToDevice);
 
-    // //upsweep
-    // printf("yo");
+    //upsweep
+    printf("yo");
     // for (int two_d = 1; two_d <= N/2; two_d*=2) {
     //     int threadsPerBlock = 512;
     //     int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
