@@ -29,16 +29,8 @@ static inline int nextPow2(int n) {
 
 __global__ void
 usweep_kernel(int N, int* input, int* output, int two_d) {
-
-    // compute overall thread index from position of thread in current
-    // block, and given the block we are in (in this example only a 1D
-    // calculation is needed so the code only looks at the .x terms of
-    // blockDim and threadIdx.
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     // int t = output[index+two_d-1];
-
-    // this check is necessary to make the code work for values of N
-    // that are not a multiple of the thread block size (blockDim.x)
     int two_dplus1 =  2 * two_d;
     if ((index+two_dplus1-1) < N){
         output[index+two_dplus1-1] += input[index+two_d-1];
@@ -127,7 +119,7 @@ void exclusive_scan(int* input, int N, int* result)
     //upsweep
     printf("yo");
     for (int two_d = 1; two_d <= N/2; two_d*=2) {
-        int threadsPerBlock = 512;
+        int threadsPerBlock = 1;
         int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
         // parallel_for (int i = 0; i < N; i += two_dplus1) {
         //     output[i+two_dplus1-1] += output[i+two_d-1];
