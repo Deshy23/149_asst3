@@ -103,7 +103,6 @@ void exclusive_scan(int* input, int N, int* result)
     // }
 
 // }
-    printf("yo");
     int* device_output = nullptr;
     cudaMalloc(&device_output, N*sizeof(int));
     int* device_input = nullptr;
@@ -112,7 +111,6 @@ void exclusive_scan(int* input, int N, int* result)
     cudaMemcpy(device_output, result, N*sizeof(int), cudaMemcpyHostToDevice);
 
     //upsweep
-    printf("yo");
     for (int two_d = 1; two_d <= N/2; two_d*=2) {
         int threadsPerBlock = 512;
         int two_dplus1 =  2 * two_d;
@@ -121,6 +119,7 @@ void exclusive_scan(int* input, int N, int* result)
         //     output[i+two_dplus1-1] += output[i+two_d-1];
         // }
         usweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d, two_dplus1);
+        cudaDeviceSynchronize();
         cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
         cudaDeviceSynchronize();
     }
@@ -128,14 +127,15 @@ void exclusive_scan(int* input, int N, int* result)
     // device_output[N-1] = 0;
     // printf("%d", input[0]);
     int tmp = 0;
-    cudaMemcpy(&device_input[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice); 
     cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
+    cudaDeviceSynchronize();
     // downsweep phase
     for (int two_d = N/2; two_d >= 1; two_d /= 2) {
         int threadsPerBlock = 512;
         int two_dplus1 = 2*two_d;
         int blocks = ((N/two_dplus1) + threadsPerBlock - 1) / threadsPerBlock;
         dsweep_kernel<<<blocks, threadsPerBlock>>>(N, device_output, two_d, two_dplus1);
+        cudaDeviceSynchronize();
         cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
         cudaDeviceSynchronize();
     }
@@ -229,7 +229,12 @@ double cudaScanThrust(int* inarray, int* end, int* resultarray) {
     return overallDuration; 
 }
 
-
+__global__ void
+add_and_compare(int N, int* input1, int* input2, int* input3, int* output, int* counter) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    output[i] = (input1[1] + input2[i]) == input3[i];
+    // atomicAdd_system(counter, output[i]);
+}
 // find_repeats --
 //
 // Given an array of integers `device_input`, returns an array of all
@@ -249,7 +254,15 @@ int find_repeats(int* device_input, int length, int* device_output) {
     // exclusive_scan function with them. However, your implementation
     // must ensure that the results of find_repeats are correct given
     // the actual array length.
-
+    // int *counter;
+    // cudaMalloc(&counter, sizeof(int));
+    // *counter = 0;
+    // int *inarray = nullptr;
+    // cudaMalloc(&inarray, sizeof(int) * (length + 1));
+    // int *outarray = nullptr;
+    // cudaMalloc(&outarray, sizeof(int) * (length + 1));
+    // exclusive_scan(int* input, int N, int* result)
+    // int N = nextPow2(length);
     return 0; 
 }
 
