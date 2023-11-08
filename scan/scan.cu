@@ -112,7 +112,7 @@ void exclusive_scan(int* input, int N, int* result)
 
     //upsweep
     for (int two_d = 1; two_d <= N/2; two_d*=2) {
-        int threadsPerBlock = nextPow2(N);
+        int threadsPerBlock = 512;
         int two_dplus1 =  2 * two_d;
         int blocks = ((N/two_dplus1) + threadsPerBlock - 1) / threadsPerBlock;
         // parallel_for (int i = 0; i < N; i += two_dplus1) {
@@ -121,14 +121,12 @@ void exclusive_scan(int* input, int N, int* result)
         usweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d, two_dplus1);
         cudaDeviceSynchronize();
         cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
-        cudaDeviceSynchronize();
     }
     // device_input[N-1] = 0;
     // device_output[N-1] = 0;
     // printf("%d", input[0]);
     int tmp = 0;
     cudaMemcpy(&device_output[N-1], &tmp, sizeof(int), cudaMemcpyHostToDevice);
-    cudaDeviceSynchronize();
     // downsweep phase
     // for (int two_d = N/2; two_d >= 1; two_d /= 2) {
     //     int threadsPerBlock = nextPow2(N);
@@ -141,7 +139,6 @@ void exclusive_scan(int* input, int N, int* result)
     // }
 
     cudaMemcpy(result, device_output, N*sizeof(int), cudaMemcpyDeviceToHost);
-    cudaDeviceSynchronize();
     cudaFree(device_input);
     cudaFree(device_output);
 
