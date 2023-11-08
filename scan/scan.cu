@@ -36,6 +36,9 @@ usweep_kernel(int N, int* input, int* output, int two_d, int two_dplus1) {
     if ((index+two_dplus1-1) < N){
         output[index+two_dplus1-1] += input[index+two_d-1];
     }
+    else{
+        output[index+two_dplus1-1] = 0;
+    }
 }
 
 __global__ void
