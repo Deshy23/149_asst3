@@ -127,7 +127,7 @@ void exclusive_scan(int* input, int N, int* result)
         //     output[i+two_dplus1-1] += output[i+two_d-1];
         // }
         usweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d);
-        cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
+        //cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
     }
 
     device_input[N-1] = 0;
