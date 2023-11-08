@@ -29,13 +29,12 @@ static inline int nextPow2(int n) {
 
 __global__ void
 usweep_kernel(int N, int* input, int* output, int two_d) {
-    // int index = blockIdx.x * blockDim.x + threadIdx.x;
-    // // int t = output[index+two_d-1];
-    // int two_dplus1 =  2 * two_d;
-    // if ((index+two_dplus1-1) < N){
-    //     output[index+two_dplus1-1] += input[index+two_d-1];
-    // }
-    return;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    // int t = output[index+two_d-1];
+    int two_dplus1 =  2 * two_d;
+    if ((index+two_dplus1-1) < N){
+        output[index+two_dplus1-1] += input[index+two_d-1];
+    }
 }
 
 __global__ void
@@ -127,7 +126,7 @@ void exclusive_scan(int* input, int N, int* result)
         //     output[i+two_dplus1-1] += output[i+two_d-1];
         // }
         usweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d);
-        //cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
+        cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
     }
 
     // device_input[N-1] = 0;
