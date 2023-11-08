@@ -24,8 +24,8 @@ void usage(const char* progname) {
 
 void cpu_exclusive_scan(int* start, int* end, int* output) {
 
-#define PARALLEL 1
-// #ifdef PARALLEL
+//#define PARALLEL 1
+#ifdef PARALLEL
 
     // note to students: this C code can be helpful when debugging the
     // output of intermediate steps of your CUDA segmented scan.
@@ -55,13 +55,13 @@ void cpu_exclusive_scan(int* start, int* end, int* output) {
         }
     }
 
-// #else    
-//     int N = end - start;
-//     output[0] = 0;
-//     for (int i = 1; i < N; i++) {
-//         output[i] = output[i-1] + start[i-1];
-//     }
-// #endif
+#else    
+    int N = end - start;
+    output[0] = 0;
+    for (int i = 1; i < N; i++) {
+        output[i] = output[i-1] + start[i-1];
+    }
+#endif
 }
 
 int cpu_find_repeats(int *start, int length, int *output) {
@@ -173,7 +173,7 @@ int main(int argc, char** argv) {
                         "Error: Device exclusive_scan outputs incorrect result."
                         " A[%d] = %d, expecting %d.\n",
                         i, resultarray[i], checkarray[i]);
-                // exit(1);
+                exit(1);
             }
         }
         printf("Scan outputs are correct!\n");

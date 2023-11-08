@@ -39,7 +39,7 @@ usweep_kernel(int N, int* input, int* output, int two_d, int two_dplus1) {
 }
 
 __global__ void
-dsweep_kernel(int N, int* input, int* output, int two_d, int two_dplus1) {
+dsweep_kernel(int N, int* output, int two_d, int two_dplus1) {
 
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     // int t = output[index+two_d-1];
@@ -136,7 +136,7 @@ void exclusive_scan(int* input, int N, int* result)
         int two_dplus1 = 2*two_d;
         int blocks = ((N/two_dplus1) + threadsPerBlock - 1) / threadsPerBlock;
         dsweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d, two_dplus1);
-        cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
+        cudaMemcpy(device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
         cudaDeviceSynchronize();
     }
 
