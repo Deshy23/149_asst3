@@ -45,7 +45,7 @@ dsweep_kernel(int N, int* input, int* output, int two_d, int two_dplus1) {
     // int t = output[index+two_d-1];
     index *= two_dplus1;
     if (index+two_dplus1-1 < N){
-        int tmp = output[index+two_d-1]
+        int tmp = output[index+two_d-1];
         output[index+two_d-1] = output[index+two_dplus1-1];
         output[index+two_dplus1-1] += tmp;
     }
