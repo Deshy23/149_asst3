@@ -29,11 +29,10 @@ static inline int nextPow2(int n) {
 }
 
 __global__ void
-usweep_kernel(int N, int* input, int* output, int two_d) {
+usweep_kernel(int N, int* input, int* output, int two_d, int two_dplus1) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
-    index *= 2;
+    index *= two_dplus1;
     // int t = output[index+two_d-1];
-    int two_dplus1 =  2 * two_d;
     if ((index+two_dplus1-1) < N){
         output[index+two_dplus1-1] += input[index+two_d-1];
     }
@@ -122,11 +121,12 @@ void exclusive_scan(int* input, int N, int* result)
     printf("yo");
     for (int two_d = 1; two_d <= N/2; two_d*=2) {
         int threadsPerBlock = 512;
-        int blocks = ((N/two_d) + threadsPerBlock - 1) / threadsPerBlock;
+        int two_dplus1 =  2 * two_d;
+        int blocks = ((N/two_dplus1) + threadsPerBlock - 1) / threadsPerBlock;
         // parallel_for (int i = 0; i < N; i += two_dplus1) {
         //     output[i+two_dplus1-1] += output[i+two_d-1];
         // }
-        usweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d);
+        usweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d, two_dplus1);
         cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
         cudaDeviceSynchronize();
     }
