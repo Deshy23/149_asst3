@@ -38,7 +38,7 @@ populate_zeroes(int start, int end, int* output) {
 }
 
 __global__ void
-usweep_kernel(int N, int* input, int* output, int two_d, int two_dplus1) {
+usweep_kernel(int N, int* output, int two_d, int two_dplus1) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     index *= two_dplus1;
     // int t = output[index+two_d-1];
@@ -118,7 +118,7 @@ void exclusive_scan(int* input, int N, int* result)
     cudaMalloc(&device_output, rounded*sizeof(int));
     int* device_input = nullptr;
     cudaMalloc(&device_input, rounded*sizeof(int));  
-    cudaMemcpy(device_input, input, N*sizeof(int), cudaMemcpyHostToDevice);
+    // cudaMemcpy(device_input, input, N*sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(device_output, result, N*sizeof(int), cudaMemcpyHostToDevice);
     // for(int i = N; i < rounded; i ++){
     //     cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
@@ -133,7 +133,7 @@ void exclusive_scan(int* input, int N, int* result)
         // parallel_for (int i = 0; i < N; i += two_dplus1) {
         //     output[i+two_dplus1-1] += output[i+two_d-1];
         // }
-        usweep_kernel<<<blocks, threadsPerBlock>>>(rounded, device_input, device_output, two_d, two_dplus1);
+        usweep_kernel<<<blocks, threadsPerBlock>>>(rounded, device_output, two_d, two_dplus1);
         // cudaDeviceSynchronize();
     //     cudaMemcpy(device_input, device_output, rounded*sizeof(int), cudaMemcpyDeviceToDevice);
     }
