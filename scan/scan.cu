@@ -128,7 +128,7 @@ void exclusive_scan(int* input, int N, int* result)
         usweep_kernel<<<blocks, threadsPerBlock>>>(N, device_input, device_output, two_d);
         cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
     }
-    result[N-1] = 0;
+    result[0] = 0;
     // device_input[N-1] = 0;
     // device_output[N-1] = 0;
 
