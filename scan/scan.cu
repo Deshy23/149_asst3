@@ -120,7 +120,7 @@ void exclusive_scan(int* input, int N, int* result)
     //     cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     //     cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // }
-    // populate_zeroes<<<rounded - N, 1>>>(N, rounded, device_output);
+    populate_zeroes<<<1, rounded - N>>>(N, rounded, device_output);
     //upsweep
     int threadsPerBlock = 1;
     for (int two_d = 1; two_d < rounded/2; two_d*=2) {
@@ -142,7 +142,7 @@ void exclusive_scan(int* input, int N, int* result)
     //     cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     //     cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // }
-    populate_zeroes<<<1 + rounded - N, 1>>>(N-1, rounded, device_output);
+    populate_zeroes<<<1, 1 + rounded - N>>>(N-1, rounded, device_output);
     // downsweep phase
     for (int two_d = rounded/2; two_d >= 1; two_d /= 2) {
         int two_dplus1 = 2*two_d;
