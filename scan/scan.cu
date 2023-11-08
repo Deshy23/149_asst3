@@ -120,7 +120,7 @@ void exclusive_scan(int* input, int N, int* result)
     //upsweep
     printf("yo");
     for (int two_d = 1; two_d <= N/2; two_d*=2) {
-        int threadsPerBlock = 1;
+        int threadsPerBlock = 512;
         int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
         // parallel_for (int i = 0; i < N; i += two_dplus1) {
         //     output[i+two_dplus1-1] += output[i+two_d-1];
@@ -141,9 +141,9 @@ void exclusive_scan(int* input, int N, int* result)
     //     cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
     // }
 
-    // cudaMemcpy(result, device_output, N*sizeof(int), cudaMemcpyDeviceToHost);
-    // cudaFree(device_input);
-    // cudaFree(device_output);
+    cudaMemcpy(result, device_output, N*sizeof(int), cudaMemcpyDeviceToHost);
+    cudaFree(device_input);
+    cudaFree(device_output);
 
 }
 
