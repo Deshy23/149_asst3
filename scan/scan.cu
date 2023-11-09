@@ -271,9 +271,9 @@ int find_repeats(int* device_input, int length, int* device_output) {
     // exclusive_scan function with them. However, your implementation
     // must ensure that the results of find_repeats are correct given
     // the actual array length.
-    int *counter;
-    cudaMalloc(&counter, sizeof(int));
-    *counter = 0;
+    // int *counter;
+    // cudaMalloc(&counter, sizeof(int));
+    // *counter = 0;
     // int *dinarray = nullptr;
     // // cudaMalloc(&dinarray, sizeof(int) * (length + 1));
     // int *doutarray = nullptr;
