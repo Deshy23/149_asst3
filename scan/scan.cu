@@ -145,8 +145,8 @@ void exclusive_scan(int* input, int N, int* result)
     //     cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     //     cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // }
-    // populate_zeroes<<<1 + rounded - N, 1>>>(N-1, rounded, device_output);
-    // cudaDeviceSynchronize();
+    populate_zeroes<<<1 + rounded - N, 1>>>(N-1, rounded, device_output);
+    cudaDeviceSynchronize();
     // downsweep phase
     for (int two_d = N/2; two_d >= 1; two_d /= 2) {
         int two_dplus1 = 2*two_d;
