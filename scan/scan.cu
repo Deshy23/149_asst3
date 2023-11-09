@@ -145,8 +145,8 @@ void exclusive_scan(int* input, int N, int* result)
     //     cudaMemcpy(&device_output[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     //     cudaMemcpy(&device_input[i], &tmp, sizeof(int), cudaMemcpyHostToDevice);
     // }
-    populate_zeroes<<<1 + rounded - N, 1>>>(N-1, rounded, device_output);
-    cudaDeviceSynchronize();
+    // populate_zeroes<<<1 + rounded - N, 1>>>(N-1, rounded, device_output);
+    // cudaDeviceSynchronize();
     // downsweep phase
     for (int two_d = N/2; two_d >= 1; two_d /= 2) {
         int two_dplus1 = 2*two_d;
@@ -271,9 +271,9 @@ int find_repeats(int* device_input, int length, int* device_output) {
     // exclusive_scan function with them. However, your implementation
     // must ensure that the results of find_repeats are correct given
     // the actual array length.
-    // int *counter;
-    // cudaMalloc(&counter, sizeof(int));
-    // *counter = 0;
+    int *counter;
+    cudaMalloc(&counter, sizeof(int));
+    *counter = 0;
     // int *dinarray = nullptr;
     // // cudaMalloc(&dinarray, sizeof(int) * (length + 1));
     // int *doutarray = nullptr;
