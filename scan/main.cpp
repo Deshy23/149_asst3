@@ -25,7 +25,7 @@ void usage(const char* progname) {
 void cpu_exclusive_scan(int* start, int* end, int* output) {
 
 //#define PARALLEL 1
-#ifdef PARALLEL
+// #ifdef PARALLEL
 
     // note to students: this C code can be helpful when debugging the
     // output of intermediate steps of your CUDA segmented scan.
@@ -43,25 +43,25 @@ void cpu_exclusive_scan(int* start, int* end, int* output) {
         }
     }
 
-    output[N-1] = 0;
+    // output[N-1] = 0;
 
-    // downsweep phase
-    for (int twod = N/2; twod >= 1; twod /= 2) {
-        int twod1 = twod*2;
-        for (int i = 0; i < N; i += twod1) {
-            int tmp = output[i+twod-1];
-            output[i+twod-1] = output[i+twod1-1];
-            output[i+twod1-1] = tmp + output[i+twod1-1];
-        }
-    }
+    // // downsweep phase
+    // for (int twod = N/2; twod >= 1; twod /= 2) {
+    //     int twod1 = twod*2;
+    //     for (int i = 0; i < N; i += twod1) {
+    //         int tmp = output[i+twod-1];
+    //         output[i+twod-1] = output[i+twod1-1];
+    //         output[i+twod1-1] = tmp + output[i+twod1-1];
+    //     }
+    // }
 
-#else    
-    int N = end - start;
-    output[0] = 0;
-    for (int i = 1; i < N; i++) {
-        output[i] = output[i-1] + start[i-1];
-    }
-#endif
+// #else    
+//     int N = end - start;
+//     output[0] = 0;
+//     for (int i = 1; i < N; i++) {
+//         output[i] = output[i-1] + start[i-1];
+//     }
+// #endif
 }
 
 int cpu_find_repeats(int *start, int length, int *output) {
