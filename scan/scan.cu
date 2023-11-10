@@ -43,7 +43,7 @@ usweep_kernel(int N, int* output, int two_d, int two_dplus1) {
     index *= two_dplus1;
     // int t = output[index+two_d-1];
     if(index+two_dplus1-1 < N){
-        output[index+two_dplus1-1] += output[index+two_d-1];
+        output[index+two_dplus1-1] = output[index+two_d-1] + output[index+two_dplus1-1];
     }
 }
 
@@ -56,7 +56,7 @@ dsweep_kernel(int N, int* output, int two_d, int two_dplus1) {
     if(index+two_dplus1-1 < N){
         int tmp = output[index+two_d-1];
         output[index+two_d-1] = output[index+two_dplus1-1];
-        output[index+two_dplus1-1] += tmp;
+        output[index+two_dplus1-1] = output[index+two_dplus1-1] + tmp;
     }
 }
 
@@ -129,7 +129,7 @@ void exclusive_scan(int* input, int N, int* result)
     //upsweep
     for (int two_d = 1; two_d < rounded/2; two_d*=2) {
         int two_dplus1 =  2 * two_d;
-        int blocks = ((rounded/two_dplus1) + THREADS_PER_BLOCK - 1)/ THREADS_PER_BLOCK;
+        int blocks = (((rounded + two_dplus1 - 1)/two_dplus1) + THREADS_PER_BLOCK - 1)/ THREADS_PER_BLOCK;
         // parallel_for (int i = 0; i < N; i += two_dplus1) {
         //     output[i+two_dplus1-1] += output[i+two_d-1];
         // }
@@ -150,7 +150,7 @@ void exclusive_scan(int* input, int N, int* result)
     // downsweep phase
     for (int two_d = rounded/2; two_d >= 1; two_d /= 2) {
         int two_dplus1 = 2*two_d;
-        int blocks = ((rounded/two_dplus1) + THREADS_PER_BLOCK - 1)/ THREADS_PER_BLOCK;
+        int blocks = (((rounded + two_dplus1 - 1)/two_dplus1) + THREADS_PER_BLOCK - 1)/ THREADS_PER_BLOCK;
         dsweep_kernel<<<blocks, THREADS_PER_BLOCK>>>(rounded, device_output, two_d, two_dplus1);
         cudaDeviceSynchronize();
         // cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);

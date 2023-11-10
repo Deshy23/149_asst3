@@ -635,7 +635,16 @@ CudaRenderer::advanceAnimation() {
 
 void
 CudaRenderer::render() {
-
+    /*
+    chop imae into blocks
+    for each box 
+        for each circle
+            check box
+        calculate in order
+        for each pixel
+            serial for every overlap circle
+                shadepixel
+    */
     // 256 threads per block is a healthy number
     dim3 blockDim(256, 1);
     dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
