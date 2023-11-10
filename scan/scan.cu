@@ -113,7 +113,7 @@ void exclusive_scan(int* input, int N, int* result)
 
 // }
     int rounded = nextPow2(N);
-    int tmp = 0;
+    // int tmp = 0;
     int* device_output = nullptr;
     cudaMalloc(&device_output, rounded*sizeof(int));
     // int* device_input = nullptr;
@@ -126,7 +126,7 @@ void exclusive_scan(int* input, int N, int* result)
     // }
     // populate_zeroes<<<rounded - N, 1>>>(N, rounded, device_output);
     // cudaDeviceSynchronize();
-    cudaMemset(device_output + N, 0, (rounded - N)*sizeof(int));
+    // cudaMemset(device_output + N, 0, (rounded - N)*sizeof(int));
     //upsweep
     for (int two_d = 1; two_d < rounded/2; two_d*=2) {
         int two_dplus1 =  2 * two_d;
@@ -148,16 +148,16 @@ void exclusive_scan(int* input, int N, int* result)
     // }
     // populate_zeroes<<<1 + rounded - N, 1>>>(N-1, rounded, device_output);
     // cudaDeviceSynchronize();
-    cudaMemset(device_output + N - 1, 0, (1 + rounded - N)*sizeof(int));
-    // downsweep phase
-    for (int two_d = rounded/2; two_d >= 1; two_d /= 2) {
-        int two_dplus1 = 2*two_d;
-        int blocks = (((rounded + two_dplus1 - 1)/two_dplus1) + THREADS_PER_BLOCK - 1)/ THREADS_PER_BLOCK;
-        dsweep_kernel<<<blocks, THREADS_PER_BLOCK>>>(rounded, device_output, two_d, two_dplus1);
-        cudaDeviceSynchronize();
-        // cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
-        // cudaDeviceSynchronize();
-    }
+    // cudaMemset(device_output + N - 1, 0, (1 + rounded - N)*sizeof(int));
+    // // downsweep phase
+    // for (int two_d = rounded/2; two_d >= 1; two_d /= 2) {
+    //     int two_dplus1 = 2*two_d;
+    //     int blocks = (((rounded + two_dplus1 - 1)/two_dplus1) + THREADS_PER_BLOCK - 1)/ THREADS_PER_BLOCK;
+    //     dsweep_kernel<<<blocks, THREADS_PER_BLOCK>>>(rounded, device_output, two_d, two_dplus1);
+    //     cudaDeviceSynchronize();
+    //     // cudaMemcpy(device_input, device_output, N*sizeof(int), cudaMemcpyDeviceToDevice);
+    //     // cudaDeviceSynchronize();
+    // }
 
     cudaMemcpy(result, device_output, N*sizeof(int), cudaMemcpyDeviceToHost);
     // cudaFree(device_input);
