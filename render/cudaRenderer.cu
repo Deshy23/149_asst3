@@ -389,7 +389,7 @@ shadePixel(int circleIndex, float2 pixelCenter, float3 p, float4* imagePtr) {
 __global__ void kernelRenderCircles() {
 
     int index = blockIdx.x * blockDim.x + threadIdx.x;
-
+    printf("%d", index);
     if (index >= cuConstRendererParams.numCircles)
         return;
 
