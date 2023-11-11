@@ -487,7 +487,7 @@ __global__ void kernelPerBlock(){
         int ret = circleInBox(p.x, p.y, rad, L, R, T, B);
         if(ret){
         (*imgPtr).x = 0.0;
-        (*imgPtr).y = 0.0 + counter * 0.5;
+        (*imgPtr).y = 0.0 ;
         (*imgPtr).z = 0.0;
         }
         //add ret to shared array
