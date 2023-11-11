@@ -461,7 +461,7 @@ __global__ void kernelPerBlock(){
     boxT = (boxT > 0) ? ((boxT < imageHeight) ? boxT : imageHeight) : 0;
     boxB = (boxB > 0) ? ((boxB < imageHeight) ? boxB : imageHeight) : 0;
     if(threadIdx.x == 0 && threadIdx.y == 0){
-        printf("L = %d, R = %d \n", boxL, boxR);
+        printf("L = %d, R = %d, T = %d, B = %d \n", boxL, boxR, boxT, boxB);
         // printf("R = %d \n", boxR);
     }
     const int numCircles = cuConstRendererParams.numCircles;
