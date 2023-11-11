@@ -468,8 +468,9 @@ __global__ void kernelPerBlock(){
     float B = static_cast<short>(invHeight * boxB);
 
     if(threadIdx.x == 0 && threadIdx.y == 0){
-        printf("L = %f, R = %f, T = %f, B = %f \n", L, R, T, B);
+        printf("L = %d, R = %d, T = %d, B = %d \n", boxL, boxR, boxT, boxB);
         // printf("R = %d \n", boxR);
+        printf("L = %f, R = %f, T = %f, B = %f \n", L, R, T, B);
     }
     const int numCircles = cuConstRendererParams.numCircles;
     //launch check for every circle
