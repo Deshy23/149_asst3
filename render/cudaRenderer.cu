@@ -453,10 +453,10 @@ __global__ void kernelPerBlock(){
     short boxT = blockIdx.y * blockDim.y;
     short boxB = (blockIdx.y + 1) * blockDim.y;
     
-    short screenMinX = (boxL > 0) ? ((boxL < imageWidth) ? boxL : imageWidth) : 0;
-    short screenMaxX = (boxR > 0) ? ((boxR < imageWidth) ? boxR : imageWidth) : 0;
-    short screenMinY = (boxT > 0) ? ((boxT < imageHeight) ? boxT : imageHeight) : 0;
-    short screenMaxY = (boxB > 0) ? ((boxB < imageHeight) ? boxB : imageHeight) : 0;
+    short boxL = (boxL > 0) ? ((boxL < imageWidth) ? boxL : imageWidth) : 0;
+    short boxR = (boxR > 0) ? ((boxR < imageWidth) ? boxR : imageWidth) : 0;
+    short boxT = (boxT > 0) ? ((boxT < imageHeight) ? boxT : imageHeight) : 0;
+    short boxB = (boxB > 0) ? ((boxB < imageHeight) ? boxB : imageHeight) : 0;
     const int numCircles = cuConstRendererParams.numCircles;
     float invWidth = 1.f / imageWidth;
     float invHeight = 1.f / imageHeight;
