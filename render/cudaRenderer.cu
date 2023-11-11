@@ -486,6 +486,9 @@ __global__ void kernelPerBlock(){
         inc[index] = ret;
         // printf("%d \n", ret);
     }
+    for(int i = 0; i < numCircles; i++){
+        printf("%d \n", inc[i]);
+    }
     // int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
     // int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
     //for circle in circles
