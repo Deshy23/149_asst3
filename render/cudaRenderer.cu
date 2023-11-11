@@ -446,8 +446,8 @@ __global__ void kernelPerBlock(){
     short imageHeight = cuConstRendererParams.imageHeight;
 
     int index = threadIdx.x + threadIdx.y * blockDim.x;
-    printf("blockx %d", blockIdx.x);
-    printf("blocky %d /n", blockIdx.y);
+    // printf("blockx %d", blockIdx.x);
+    // printf("blocky %d \n", blockIdx.y);
     int index3 = index * 3;
 
     //get bounds of current block, maybe make into shared constant
@@ -469,6 +469,7 @@ __global__ void kernelPerBlock(){
         float  rad = cuConstRendererParams.radius[index];
         inc[index] = circleInBoxConservative(p.x, p.y, rad, boxL, boxR, boxT, boxB);
         //add ret to shared array
+        printf("%d \n", inc[index])
     }
     int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
     int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
