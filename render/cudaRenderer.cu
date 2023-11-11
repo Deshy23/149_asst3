@@ -374,7 +374,7 @@ shadePixel(int circleIndex, float2 pixelCenter, float3 p, float4* imagePtr) {
     newColor.y = alpha * rgb.y + oneMinusAlpha * existingColor.y;
     newColor.z = alpha * rgb.z + oneMinusAlpha * existingColor.z;
     newColor.w = alpha + existingColor.w;
-    printf("ncx%f ,ecx %f , ncy%f ,ecy %f, ncz%f ,ecz %f", newColor.x, existingColor.x, newColor.y, existingColor.y, newColor.z, existingColor.z);
+    printf("ncx%f ,ecx %f , ncy%f ,ecy %f, ncz%f ,ecz %f \n", newColor.x, existingColor.x, newColor.y, existingColor.y, newColor.z, existingColor.z);
     // global memory write
     *imagePtr = newColor;
 
