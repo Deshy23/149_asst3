@@ -440,6 +440,7 @@ __global__ void kernelPerBlock(){
     //  for each pixel
     //      serial for every overlap circle
     //             shadepixel
+    
     extern __shared__ int inc [];
     short imageWidth = cuConstRendererParams.imageWidth;
     short imageHeight = cuConstRendererParams.imageHeight;
@@ -710,6 +711,8 @@ CudaRenderer::render() {
     // self.imageHeight;
     dim3 blockDim(16, 16);
     // dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
+    printf("%d", imageHeight);
+    printf("%d", imageWidth);
     dim3 gridDim((imageHeight+ blockDim.y - 1) / blockDim.y, (imageWidth + blockDim.x - 1) / blockDim.x);
 
     // kernelRenderCircles<<<gridDim, blockDim>>>(numCircles);
