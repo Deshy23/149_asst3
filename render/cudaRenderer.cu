@@ -412,7 +412,7 @@ __global__ void kernelRenderCircles() {
     short screenMaxX = (maxX > 0) ? ((maxX < imageWidth) ? maxX : imageWidth) : 0;
     short screenMinY = (minY > 0) ? ((minY < imageHeight) ? minY : imageHeight) : 0;
     short screenMaxY = (maxY > 0) ? ((maxY < imageHeight) ? maxY : imageHeight) : 0;
-    printf("%d", screenMinX);
+    printf("%d \n", screenMinX);
     float invWidth = 1.f / imageWidth;
     float invHeight = 1.f / imageHeight;
 
