@@ -479,7 +479,7 @@ __global__ void kernelPerBlock(){
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
         // printf("px = %f, py = %f \n", p.x, p.y);
         float  rad = cuConstRendererParams.radius[index];
-        // printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
+        printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
         int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
         //add ret to shared array
         inc[index] = ret;
@@ -493,7 +493,7 @@ __global__ void kernelPerBlock(){
     }
     for(int i = 0; i < numCircles; i++){
         if(inc[i]){
-            printf("hello");
+            // printf("hello");
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
             float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
             imgPtr = imgPtr + pixelX;
