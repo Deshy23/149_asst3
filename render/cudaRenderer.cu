@@ -490,12 +490,12 @@ __global__ void kernelPerBlock(){
     if(pixelX >= imageWidth || pixelY >= imageHeight){
         return;
     }
-    if(pixelX == 389 && pixelY == 205){
-        printf("hi");
-    }
     for(int i = 0; i < numCircles; i++){
         if(inc[i]){
             // printf("hello");
+            if(pixelX == 389 && pixelY == 205){
+                printf("hi\n");
+            }
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
             float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
             imgPtr = imgPtr + pixelX;
