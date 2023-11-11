@@ -486,9 +486,11 @@ __global__ void kernelPerBlock(){
         inc[index] = ret;
         // printf("%d \n", ret);
     }
-    int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
-    int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
+    // int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
+    // int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
     //for circle in circles
+    int pixelX = boxL + threadIdx.x;
+    int pixelY = boxT + threadIdx.y;
     if(pixelX >= imageWidth || pixelY >= imageHeight){
         return;
     }
