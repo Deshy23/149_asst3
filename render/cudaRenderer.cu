@@ -479,7 +479,9 @@ __global__ void kernelPerBlock(){
         // printf("px = %f, py = %f \n", p.x, p.y);
         float  rad = cuConstRendererParams.radius[index];
         // printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
-        int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
+        // int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
+        int ret = circleInBox(p.x, p.y, rad, L, R, T, B);
+        
         //add ret to shared array
         inc[index] = ret;
         // printf("%d \n", ret);
