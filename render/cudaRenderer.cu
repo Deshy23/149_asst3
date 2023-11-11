@@ -508,7 +508,7 @@ __global__ void kernelPerBlock(){
     (*imgPtr).x = 0.0;
     (*imgPtr).y = 0.0;
     (*imgPtr).z = 0.0;
-    (*imgPtr).z = (*imgPtr).z + 0.5f;
+    (*imgPtr).w = (*imgPtr).w + 0.5f;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
