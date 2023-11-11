@@ -473,7 +473,11 @@ __global__ void kernelPerBlock(){
     // }
     const int numCircles = cuConstRendererParams.numCircles;
     //launch check for every circle
-    if(index == 2){
+    int pixelX = boxL + threadIdx.x;
+    int pixelY = boxT + threadIdx.y;
+    float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
+    imgPtr = imgPtr + pixelX;
+    if(index == 0){
         
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
         // printf("px = %f, py = %f \n", p.x, p.y);
@@ -481,7 +485,11 @@ __global__ void kernelPerBlock(){
         // printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
         // int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
         int ret = circleInBox(p.x, p.y, rad, L, R, T, B);
-        
+        if(ret){
+        (*imgPtr).x = 0.0;
+        (*imgPtr).y = 0.0 + counter * 0.5;
+        (*imgPtr).z = 0.0;
+        }
         //add ret to shared array
         inc[index] = ret;
         // printf("%d \n", ret);
@@ -494,23 +502,21 @@ __global__ void kernelPerBlock(){
     // int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
     // int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
     //for circle in circles
-    int pixelX = boxL + threadIdx.x;
-    int pixelY = boxT + threadIdx.y;
     if(pixelX >= imageWidth || pixelY >= imageHeight){
         return;
     }
-    float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
-    imgPtr = imgPtr + pixelX;
+    // float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
+    // imgPtr = imgPtr + pixelX;
     float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
                                                  invHeight * (static_cast<float>(pixelY) + 0.5f));
     int counter = 0;
     for(int i = 0; i < numCircles; i++){
         if(inc[i]){
             // printf("hello");
-            (*imgPtr).x = 0.0;
-            (*imgPtr).y = 0.0 + counter * 0.5;
-            (*imgPtr).z = 0.0;
-            (*imgPtr).w = (*imgPtr).w + 0.5f;
+            // (*imgPtr).x = 0.0;
+            // (*imgPtr).y = 0.0 + counter * 0.5;
+            // (*imgPtr).z = 0.0;
+            // (*imgPtr).w = (*imgPtr).w + 0.5f;
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
             counter = counter + 1;
             //shadePixel
