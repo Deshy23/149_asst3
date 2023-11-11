@@ -446,8 +446,8 @@ __global__ void kernelPerBlock(){
     short imageHeight = cuConstRendererParams.imageHeight;
 
     int index = threadIdx.x + threadIdx.y * blockDim.x;
-    printf("blockx %d", imageWidth);
-    printf("blocky %d \n", imageHeight);
+    // printf("blockx %d", imageWidth);
+    // printf("blocky %d \n", imageHeight);
     int index3 = index * 3;
 
     //get bounds of current block, maybe make into shared constant
@@ -460,6 +460,10 @@ __global__ void kernelPerBlock(){
     boxR = (boxR > 0) ? ((boxR < imageWidth) ? boxR : imageWidth) : 0;
     boxT = (boxT > 0) ? ((boxT < imageHeight) ? boxT : imageHeight) : 0;
     boxB = (boxB > 0) ? ((boxB < imageHeight) ? boxB : imageHeight) : 0;
+    if(threadIdx.x == 0 && threadIdx.y == 0){
+        printf("L = %d \n", boxL);
+        printf("R = %d \n", boxR);
+    }
     const int numCircles = cuConstRendererParams.numCircles;
     float invWidth = 1.f / imageWidth;
     float invHeight = 1.f / imageHeight;
