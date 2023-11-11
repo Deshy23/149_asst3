@@ -374,7 +374,7 @@ shadePixel(int circleIndex, float2 pixelCenter, float3 p, float4* imagePtr) {
     newColor.y = alpha * rgb.y + oneMinusAlpha * existingColor.y;
     newColor.z = alpha * rgb.z + oneMinusAlpha * existingColor.z;
     newColor.w = alpha + existingColor.w;
-
+    printf("ncx%f ,ecx %f , ncy%f ,ecy %f, ncz%f ,ecz %f", newColor.x, existingColor.x, newColor.y, existingColor.y, newColor.z, existingColor.z)
     // global memory write
     *imagePtr = newColor;
 
@@ -495,11 +495,7 @@ __global__ void kernelPerBlock(){
             // printf("hello");
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
             float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
-            float4* imgPt = imgPtr + pixelX;
-            for(int j = 0; j < pixelX; j ++){
-                imgPtr++;
-            }
-            printf("%f = %f \n", (*imgPtr).x, (*imgPt).x);
+            float4* imgPtr = imgPtr + pixelX;
             float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
                                                  invHeight * (static_cast<float>(pixelY) + 0.5f));
             //shadePixel
