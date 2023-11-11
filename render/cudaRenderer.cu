@@ -493,7 +493,7 @@ __global__ void kernelPerBlock(){
     for(int i = 0; i < numCircles; i++){
         if(inc[i]){
             // printf("hello");
-            if(pixelX == 389 && pixelY == 205){
+            if(pixelY == 389 && pixelX == 205){
                 printf("hi\n");
             }
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
