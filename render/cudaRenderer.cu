@@ -412,7 +412,7 @@ __global__ void kernelRenderCircles() {
     short screenMaxX = (maxX > 0) ? ((maxX < imageWidth) ? maxX : imageWidth) : 0;
     short screenMinY = (minY > 0) ? ((minY < imageHeight) ? minY : imageHeight) : 0;
     short screenMaxY = (maxY > 0) ? ((maxY < imageHeight) ? maxY : imageHeight) : 0;
-    printf("%d \n", screenMinX);
+    // printf("%d \n", screenMinX);
     float invWidth = 1.f / imageWidth;
     float invHeight = 1.f / imageHeight;
 
@@ -729,15 +729,15 @@ CudaRenderer::render() {
     // 256 threads per block is a healthy number
     // self.imageWidth;
     // self.imageHeight;
-    dim3 blockDim(256, 1);
-    // dim3 blockDim(16, 16);
-    dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
+    // dim3 blockDim(256, 1);
+    // dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
     printf("h = %d", height);
     printf("w = %d", width);
     printf("nc = %d", numCircles);
-    // dim3 gridDim((height+ blockDim.y - 1) / blockDim.y, (width + blockDim.x - 1) / blockDim.x);
+    dim3 blockDim(16, 16);
+    dim3 gridDim((height+ blockDim.y - 1) / blockDim.y, (width + blockDim.x - 1) / blockDim.x);
 
-    kernelRenderCircles<<<gridDim, blockDim>>>();
-    // kernelPerBlock<<<gridDim, blockDim, numCircles * sizeof(int)>>>();
+    // kernelRenderCircles<<<gridDim, blockDim>>>();
+    kernelPerBlock<<<gridDim, blockDim, numCircles * sizeof(int)>>>();
     cudaDeviceSynchronize();
 }
