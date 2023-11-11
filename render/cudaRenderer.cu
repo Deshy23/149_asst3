@@ -53,8 +53,6 @@ __constant__ float  cuConstNoise1DValueTable[256];
 // color ramp table needed for the color ramp lookup shader
 #define COLOR_MAP_SIZE 5
 __constant__ float  cuConstColorRamp[COLOR_MAP_SIZE][3];
-
-
 // including parts of the CUDA code from external files to keep this
 // file simpler and to seperate code that should not be modified
 #include "noiseCuda.cu_inl"
@@ -442,6 +440,7 @@ __global__ void kernelPerBlock(){
     //  for each pixel
     //      serial for every overlap circle
     //             shadepixel
+    extern __shared__ int inc [];
     short imageWidth = cuConstRendererParams.imageWidth;
     short imageHeight = cuConstRendererParams.imageHeight;
 
@@ -459,7 +458,6 @@ __global__ void kernelPerBlock(){
     short screenMinY = (boxT > 0) ? ((boxT < imageHeight) ? boxT : imageHeight) : 0;
     short screenMaxY = (boxB > 0) ? ((boxB < imageHeight) ? boxB : imageHeight) : 0;
     const int numCircles = cuConstRendererParams.numCircles;
-    __shared__ int inc [numCircles];
     float invWidth = 1.f / imageWidth;
     float invHeight = 1.f / imageHeight;
     //launch check for every circle
@@ -706,12 +704,13 @@ CudaRenderer::render() {
                 shadepixel
     */
     // 256 threads per block is a healthy number
-    int width = cuConstRendererParams.imageWidth;
-    int height = cuConstRendererParams.imageHeight;
+    // self.imageWidth;
+    // self.imageHeight;
     dim3 blockDim(16, 16);
     // dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
-    dim3 gridDim((height + blockDim.y - 1) / blockDim.y, (width + blockDim.x - 1) / blockDim.x);
+    dim3 gridDim((imageHeight+ blockDim.y - 1) / blockDim.y, (imageWidth + blockDim.x - 1) / blockDim.x);
 
-    kernelRenderCircles<<<gridDim, blockDim>>>();
+    // kernelRenderCircles<<<gridDim, blockDim>>>(numCircles);
+    kernelPerBlock<<<gridDim, blockDim, numCircles * sizeof(int)>>>();
     cudaDeviceSynchronize();
 }
