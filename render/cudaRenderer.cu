@@ -473,17 +473,17 @@ __global__ void kernelPerBlock(){
     // }
     const int numCircles = cuConstRendererParams.numCircles;
     //launch check for every circle
-    if(index < numCircles){
+    if(index < numCircles - 1){
         
-        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+        float3 p = *(float3*)(&cuConstRendererParams.position[index3 + 3]);
         // printf("px = %f, py = %f \n", p.x, p.y);
-        float  rad = cuConstRendererParams.radius[index];
+        float  rad = cuConstRendererParams.radius[index + 1];
         // printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
         // int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
         int ret = circleInBox(p.x, p.y, rad, L, R, T, B);
         
         //add ret to shared array
-        inc[index] = ret;
+        inc[index + 1] = ret;
         // printf("%d \n", ret);
     }
     // if(threadIdx.x ==0 && threadIdx.y ==0){
