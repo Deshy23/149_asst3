@@ -469,8 +469,9 @@ __global__ void kernelPerBlock(){
         
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
         float  rad = cuConstRendererParams.radius[index];
-        inc[index] = circleInBoxConservative(p.x, p.y, rad, boxL, boxR, boxT, boxB);
+        int ret = circleInBoxConservative(p.x, p.y, rad, boxL, boxR, boxT, boxB);
         //add ret to shared array
+        inc[index] = ret;
         if(inc[index]){
             printf("%d \n", inc[index]);
         }
