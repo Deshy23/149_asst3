@@ -484,9 +484,6 @@ __global__ void kernelPerBlock(){
         //add ret to shared array
         inc[index] = ret;
         // printf("%d \n", ret);
-        if(ret){
-            printf("%d \n", inc[index]);
-        }
     }
     int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
     int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
@@ -496,6 +493,7 @@ __global__ void kernelPerBlock(){
     }
     for(int i = 0; i < numCircles; i++){
         if(inc[i]){
+            printf("hello");
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
             float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
             imgPtr = imgPtr + pixelX;
