@@ -476,7 +476,8 @@ __global__ void kernelPerBlock(){
     for(int i = 0; i < numCircles; i++){
         if(inc[i]){
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
-            float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth + pixelX)]);
+            float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
+            imgPtr = imgPtr + pixelX;
             float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
                                                  invHeight * (static_cast<float>(pixelY) + 0.5f));
             //shadePixel
