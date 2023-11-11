@@ -462,10 +462,10 @@ __global__ void kernelPerBlock(){
     boxT = (boxT > 0) ? ((boxT < imageHeight) ? boxT : imageHeight) : 0;
     boxB = (boxB > 0) ? ((boxB < imageHeight) ? boxB : imageHeight) : 0;
 
-    float L = static_cast<short>(invWidth * boxL);
-    float R = static_cast<short>(invWidth * boxR);
-    float T = static_cast<short>(invHeight * boxT);
-    float B = static_cast<short>(invHeight * boxB);
+    float L = static_cast<float>(invWidth * boxL);
+    float R = static_cast<float>(invWidth * boxR);
+    float T = static_cast<float>(invHeight * boxT);
+    float B = static_cast<float>(invHeight * boxB);
 
     if(threadIdx.x == 0 && threadIdx.y == 0){
         printf("L = %d, R = %d, T = %d, B = %d \n", boxL, boxR, boxT, boxB);
