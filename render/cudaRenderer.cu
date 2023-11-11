@@ -14,7 +14,7 @@
 #include "sceneLoader.h"
 #include "util.h"
 
-#include "exclusiveScan.cu_inl"
+// #include "exclusiveScan.cu_inl"
 #include "circleBoxTest.cu_inl"
 
 
