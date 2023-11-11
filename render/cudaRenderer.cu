@@ -467,11 +467,11 @@ __global__ void kernelPerBlock(){
     float T = static_cast<float>(invHeight * boxT);
     float B = static_cast<float>(invHeight * boxB);
 
-    if(threadIdx.x == 0 && threadIdx.y == 0){
-        printf("L = %d, R = %d, T = %d, B = %d \n", boxL, boxR, boxT, boxB);
-        // printf("R = %d \n", boxR);
-        printf("L = %f, R = %f, T = %f, B = %f \n", L, R, T, B);
-    }
+    // if(threadIdx.x == 0 && threadIdx.y == 0){
+    //     printf("L = %d, R = %d, T = %d, B = %d \n", boxL, boxR, boxT, boxB);
+    //     // printf("R = %d \n", boxR);
+    //     printf("L = %f, R = %f, T = %f, B = %f \n", L, R, T, B);
+    // }
     const int numCircles = cuConstRendererParams.numCircles;
     //launch check for every circle
     if(index < numCircles){
@@ -479,6 +479,7 @@ __global__ void kernelPerBlock(){
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
         // printf("px = %f, py = %f \n", p.x, p.y);
         float  rad = cuConstRendererParams.radius[index];
+        printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
         int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
         //add ret to shared array
         inc[index] = ret;
