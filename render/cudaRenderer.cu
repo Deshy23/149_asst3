@@ -493,7 +493,8 @@ __global__ void kernelPerBlock(){
         (*imgPtr).x = 0.0;
         (*imgPtr).y = 0.0 ;
         (*imgPtr).z = 0.0;
-        }
+        (*imgPtr).w = (*imgPtr).w + 0.5f;
+    }
     // if(threadIdx.x ==0 && threadIdx.y ==0){
     // for(int i = 0; i < numCircles; i++){
     //     printf("%d \n", inc[i]);
