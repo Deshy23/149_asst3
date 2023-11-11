@@ -497,18 +497,15 @@ __global__ void kernelPerBlock(){
     for(int i = 0; i < numCircles; i++){
         if(inc[i]){
             // printf("hello");
-            if(pixelY == 205 && pixelX == 389){
-                printf("hi\n");
-            }
+            (*imgPtr).x = 0.0;
+            (*imgPtr).y = 0.0;
+            (*imgPtr).z = 0.0;
+            (*imgPtr).w = (*imgPtr).w + 0.5f;
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
             //shadePixel
             // shadePixel(i, pixelCenterNorm, p, imgPtr);
         }
     }
-    (*imgPtr).x = 0.0;
-    (*imgPtr).y = 0.0;
-    (*imgPtr).z = 0.0;
-    (*imgPtr).w = (*imgPtr).w + 0.5f;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
