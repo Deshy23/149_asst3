@@ -465,6 +465,7 @@ __global__ void kernelPerBlock(){
     float invHeight = 1.f / imageHeight;
     //launch check for every circle
     if(index < numCircles){
+        printf("%d", numCircles);
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
         float  rad = cuConstRendererParams.radius[index];
         inc[index] = circleInBoxConservative(p.x, p.y, rad, boxL, boxR, boxT, boxB);
