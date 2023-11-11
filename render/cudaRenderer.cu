@@ -477,7 +477,7 @@ __global__ void kernelPerBlock(){
     int pixelY = boxT + threadIdx.y;
     float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
     imgPtr = imgPtr + pixelX;
-    if(index == 0){
+    if(index == 1){
         
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
         // printf("px = %f, py = %f \n", p.x, p.y);
@@ -489,7 +489,7 @@ __global__ void kernelPerBlock(){
         inc[index] = ret;
         // printf("%d \n", ret);
     }
-    if(inc[0]){
+    if(inc[1]){
         (*imgPtr).x = 0.0;
         (*imgPtr).y = 0.0 ;
         (*imgPtr).z = 0.0;
