@@ -496,7 +496,7 @@ __global__ void kernelPerBlock(){
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
             float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
             float4* imgPt = imgPtr + pixelX;
-            for(int j = 0; j < pixelX; i ++){
+            for(int j = 0; j < pixelX; j ++){
                 imgPtr++;
             }
             printf("%f = %f \n", (*imgPtr).x, (*imgPt).x);
