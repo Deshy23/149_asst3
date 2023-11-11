@@ -712,7 +712,8 @@ CudaRenderer::render() {
     dim3 blockDim(16, 16);
     // dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
     printf("h = %d", imageHeight);
-    printf("%d", imageWidth);
+    printf("w = %d", imageWidth);
+    printf("nc = %d", numCircles);
     dim3 gridDim((imageHeight+ blockDim.y - 1) / blockDim.y, (imageWidth + blockDim.x - 1) / blockDim.x);
 
     // kernelRenderCircles<<<gridDim, blockDim>>>(numCircles);
