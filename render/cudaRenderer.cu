@@ -471,6 +471,7 @@ __global__ void kernelPerBlock(){
     if(index < numCircles){
         
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+        printf("px = %f, py = %f \n", p.x, p.y);
         float  rad = cuConstRendererParams.radius[index];
         int ret = circleInBoxConservative(p.x, p.y, rad, boxL, boxR, boxT, boxB);
         //add ret to shared array
