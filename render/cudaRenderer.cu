@@ -461,8 +461,8 @@ __global__ void kernelPerBlock(){
     boxT = (boxT > 0) ? ((boxT < imageHeight) ? boxT : imageHeight) : 0;
     boxB = (boxB > 0) ? ((boxB < imageHeight) ? boxB : imageHeight) : 0;
     if(threadIdx.x == 0 && threadIdx.y == 0){
-        printf("L = %d \n", boxL);
-        printf("R = %d \n", boxR);
+        printf("L = %d, R = %d \n", boxL, boxR);
+        // printf("R = %d \n", boxR);
     }
     const int numCircles = cuConstRendererParams.numCircles;
     float invWidth = 1.f / imageWidth;
