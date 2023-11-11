@@ -446,7 +446,7 @@ __global__ void kernelPerBlock(){
     short imageHeight = cuConstRendererParams.imageHeight;
 
     int index = threadIdx.x + threadIdx.y * blockDim.x;
-    printf("%d", index);
+    // printf("%d", index);
     int index3 = index * 3;
 
     //get bounds of current block, maybe make into shared constant
