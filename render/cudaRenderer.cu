@@ -485,15 +485,15 @@ __global__ void kernelPerBlock(){
         // printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
         // int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
         int ret = circleInBox(p.x, p.y, rad, L, R, T, B);
-        if(ret){
-        (*imgPtr).x = 0.0;
-        (*imgPtr).y = 0.0 ;
-        (*imgPtr).z = 0.0;
-        }
         //add ret to shared array
         inc[index] = ret;
         // printf("%d \n", ret);
     }
+    if(inc[0]){
+        (*imgPtr).x = 0.0;
+        (*imgPtr).y = 0.0 ;
+        (*imgPtr).z = 0.0;
+        }
     // if(threadIdx.x ==0 && threadIdx.y ==0){
     // for(int i = 0; i < numCircles; i++){
     //     printf("%d \n", inc[i]);
