@@ -503,17 +503,20 @@ __global__ void kernelPerBlock(){
     imgPtr = imgPtr + pixelX;
     float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
                                                  invHeight * (static_cast<float>(pixelY) + 0.5f));
+    int counter = 0;
     for(int i = 0; i < numCircles; i++){
         if(inc[i]){
             // printf("hello");
             (*imgPtr).x = 0.0;
-            (*imgPtr).y = 0.0;
+            (*imgPtr).y = 0.0 + counter * 0.5;
             (*imgPtr).z = 0.0;
             (*imgPtr).w = (*imgPtr).w + 0.5f;
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+            counter = counter + 1;
             //shadePixel
             // shadePixel(i, pixelCenterNorm, p, imgPtr);
         }
+        
     }
 }
 
