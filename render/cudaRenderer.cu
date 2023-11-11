@@ -475,10 +475,10 @@ __global__ void kernelPerBlock(){
         int ret = circleInBoxConservative(p.x, p.y, rad, boxL, boxR, boxT, boxB);
         //add ret to shared array
         inc[index] = ret;
-        printf("%d \n", ret);
-        if(inc[index]){
-            printf("%d \n", inc[index]);
-        }
+        // printf("%d \n", ret);
+        // if(inc[index]){
+        //     printf("%d \n", inc[index]);
+        // }
     }
     int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
     int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
