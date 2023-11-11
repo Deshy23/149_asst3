@@ -490,6 +490,10 @@ __global__ void kernelPerBlock(){
     if(pixelX >= imageWidth || pixelY >= imageHeight){
         return;
     }
+    float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
+    imgPtr = imgPtr + pixelX;
+    float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
+                                                 invHeight * (static_cast<float>(pixelY) + 0.5f));
     for(int i = 0; i < numCircles; i++){
         if(inc[i]){
             // printf("hello");
@@ -497,14 +501,14 @@ __global__ void kernelPerBlock(){
                 printf("hi\n");
             }
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
-            float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
-            imgPtr = imgPtr + pixelX;
-            float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
-                                                 invHeight * (static_cast<float>(pixelY) + 0.5f));
             //shadePixel
-            shadePixel(i, pixelCenterNorm, p, imgPtr);
+            // shadePixel(i, pixelCenterNorm, p, imgPtr);
         }
     }
+    (*imgPtr).x = 0.0;
+    (*imgPtr).y = 0.0;
+    (*imgPtr).z = 0.0;
+    (*imgPtr).z = (*imgPtr).z + 0.5f;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
