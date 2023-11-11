@@ -467,10 +467,10 @@ __global__ void kernelPerBlock(){
     float T = static_cast<short>(invHeight * boxT);
     float B = static_cast<short>(invHeight * boxB);
 
-    // if(threadIdx.x == 0 && threadIdx.y == 0){
-    //     printf("L = %d, R = %d, T = %d, B = %d \n", boxL, boxR, boxT, boxB);
-    //     // printf("R = %d \n", boxR);
-    // }
+    if(threadIdx.x == 0 && threadIdx.y == 0){
+        printf("L = %d, R = %d, T = %d, B = %d \n", L, R, T, B);
+        // printf("R = %d \n", boxR);
+    }
     const int numCircles = cuConstRendererParams.numCircles;
     //launch check for every circle
     if(index < numCircles){
