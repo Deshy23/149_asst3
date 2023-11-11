@@ -491,7 +491,7 @@ __global__ void kernelPerBlock(){
         return;
     }
     if(pixelX == 389 && pixelY == 205){
-        print('hi');
+        printf('hi');
     }
     for(int i = 0; i < numCircles; i++){
         if(inc[i]){
