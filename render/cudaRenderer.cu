@@ -611,6 +611,10 @@ CudaRenderer::setup() {
     params.radius = cudaDeviceRadius;
     params.imageData = cudaDeviceImageData;
 
+    //added width and height
+    width = image->width;
+    height = image->height;
+
     cudaMemcpyToSymbol(cuConstRendererParams, &params, sizeof(GlobalConstants));
 
     // also need to copy over the noise lookup tables, so we can
@@ -711,10 +715,10 @@ CudaRenderer::render() {
     // self.imageHeight;
     dim3 blockDim(16, 16);
     // dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
-    printf("h = %d", imageHeight);
-    printf("w = %d", imageWidth);
+    printf("h = %d", height);
+    printf("w = %d", width);
     printf("nc = %d", numCircles);
-    dim3 gridDim((imageHeight+ blockDim.y - 1) / blockDim.y, (imageWidth + blockDim.x - 1) / blockDim.x);
+    dim3 gridDim((height+ blockDim.y - 1) / blockDim.y, (width + blockDim.x - 1) / blockDim.x);
 
     // kernelRenderCircles<<<gridDim, blockDim>>>(numCircles);
     kernelPerBlock<<<gridDim, blockDim, numCircles * sizeof(int)>>>();
