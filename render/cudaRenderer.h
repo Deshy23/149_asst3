@@ -14,7 +14,8 @@ private:
 
     Image* image;
     SceneName sceneName;
-
+    int imageWidth;
+    int imageHeight;
     int numCircles;
     float* position;
     float* velocity;
