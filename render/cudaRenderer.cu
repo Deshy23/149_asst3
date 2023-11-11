@@ -465,7 +465,7 @@ __global__ void kernelPerBlock(){
     float L = static_cast<short>(invWidth * boxL);
     float R = static_cast<short>(invWidth * boxR);
     float T = static_cast<short>(invHeight * boxT);
-    float L = static_cast<short>(invHeight * boxB);
+    float B = static_cast<short>(invHeight * boxB);
 
     if(threadIdx.x == 0 && threadIdx.y == 0){
         printf("L = %d, R = %d, T = %d, B = %d \n", boxL, boxR, boxT, boxB);
