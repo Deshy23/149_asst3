@@ -444,7 +444,8 @@ __global__ void kernelPerBlock(){
     extern __shared__ int inc [];
     short imageWidth = cuConstRendererParams.imageWidth;
     short imageHeight = cuConstRendererParams.imageHeight;
-
+    float invWidth = 1.f / imageWidth;
+    float invHeight = 1.f / imageHeight;
     int index = threadIdx.x + threadIdx.y * blockDim.x;
     // printf("blockx %d", imageWidth);
     // printf("blocky %d \n", imageHeight);
@@ -460,20 +461,24 @@ __global__ void kernelPerBlock(){
     boxR = (boxR > 0) ? ((boxR < imageWidth) ? boxR : imageWidth) : 0;
     boxT = (boxT > 0) ? ((boxT < imageHeight) ? boxT : imageHeight) : 0;
     boxB = (boxB > 0) ? ((boxB < imageHeight) ? boxB : imageHeight) : 0;
+
+    float L = static_cast<short>(invWidth * boxL);
+    float R = static_cast<short>(invWidth * boxR);
+    float T = static_cast<short>(invHeight * boxT);
+    float L = static_cast<short>(invHeight * boxB);
+
     if(threadIdx.x == 0 && threadIdx.y == 0){
         printf("L = %d, R = %d, T = %d, B = %d \n", boxL, boxR, boxT, boxB);
         // printf("R = %d \n", boxR);
     }
     const int numCircles = cuConstRendererParams.numCircles;
-    float invWidth = 1.f / imageWidth;
-    float invHeight = 1.f / imageHeight;
     //launch check for every circle
     if(index < numCircles){
         
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
         printf("px = %f, py = %f \n", p.x, p.y);
         float  rad = cuConstRendererParams.radius[index];
-        int ret = circleInBoxConservative(p.x, p.y, rad, boxL, boxR, boxT, boxB);
+        int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
         //add ret to shared array
         inc[index] = ret;
         // printf("%d \n", ret);
