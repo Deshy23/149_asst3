@@ -14,6 +14,10 @@
 #include "sceneLoader.h"
 #include "util.h"
 
+#include "exclusiveScan.cu_inl"
+#include "circleBoxTest.cu_inl"
+
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // Putting all the cuda kernels here
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -427,6 +431,62 @@ __global__ void kernelRenderCircles() {
     }
 }
 
+__global__ void checkCircles(){
+
+}
+
+__global__ void kernelPerBlock(){
+    // for each circle
+    //      check box
+    //  calculate in order
+    //  for each pixel
+    //      serial for every overlap circle
+    //             shadepixel
+    short imageWidth = cuConstRendererParams.imageWidth;
+    short imageHeight = cuConstRendererParams.imageHeight;
+
+    int index = threadIdx.x + threadIdx.y * blockDim.x;
+    int index3 = index * 3;
+
+    //get bounds of current block, maybe make into shared constant
+    short boxL = blockIdx.x * blockDim.x;
+    short boxR = (blockIdx.x + 1) * blockDim.x;
+    short boxT = blockIdx.y * blockDim.y;
+    short boxB = (blockIdx.y + 1) * blockDim.y;
+    
+    short screenMinX = (boxL > 0) ? ((boxL < imageWidth) ? boxL : imageWidth) : 0;
+    short screenMaxX = (boxR > 0) ? ((boxR < imageWidth) ? boxR : imageWidth) : 0;
+    short screenMinY = (boxT > 0) ? ((boxT < imageHeight) ? boxT : imageHeight) : 0;
+    short screenMaxY = (boxB > 0) ? ((boxB < imageHeight) ? boxB : imageHeight) : 0;
+    const int numCircles = cuConstRendererParams.numCircles;
+    __shared__ int inc [numCircles];
+    float invWidth = 1.f / imageWidth;
+    float invHeight = 1.f / imageHeight;
+    //launch check for every circle
+    if(index < numCircles){
+        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+        float  rad = cuConstRendererParams.radius[index];
+        inc[numCircles] = circleInBoxConservative(p.x, p.y, rad, boxL, boxR, boxT, boxB);
+        //add ret to shared array
+    }
+    int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
+    int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
+    //for circle in circles
+    if(pixelX >= imageWidth || pixelY >= imageHeight){
+        return;
+    }
+    for(int i = 0; i < numCircles; i++){
+        if(inc[i]){
+            float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+            float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth + pixelX)]);
+            float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
+                                                 invHeight * (static_cast<float>(pixelY) + 0.5f));
+            //shadePixel
+            shadePixel(i, pixelCenterNorm, p, imgPtr);
+        }
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -646,6 +706,7 @@ CudaRenderer::render() {
                 shadepixel
     */
     // 256 threads per block is a healthy number
+
     dim3 blockDim(256, 1);
     dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
 
