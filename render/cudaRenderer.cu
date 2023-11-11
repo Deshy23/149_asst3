@@ -496,9 +496,9 @@ __global__ void kernelPerBlock(){
     //for circle in circles
     int pixelX = boxL + threadIdx.x;
     int pixelY = boxT + threadIdx.y;
-    // if(pixelX >= imageWidth || pixelY >= imageHeight){
-    //     return;
-    // }
+    if(pixelX >= imageWidth || pixelY >= imageHeight){
+        return;
+    }
     float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
     imgPtr = imgPtr + pixelX;
     float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
