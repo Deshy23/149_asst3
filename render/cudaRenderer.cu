@@ -473,7 +473,7 @@ __global__ void kernelPerBlock(){
     // }
     const int numCircles = cuConstRendererParams.numCircles;
     //launch check for every circle
-    if(index == 1){
+    if(index == 2){
         
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
         // printf("px = %f, py = %f \n", p.x, p.y);
