@@ -482,7 +482,7 @@ __global__ void kernelPerBlock(){
         //add ret to shared array
         inc[index] = ret;
         // printf("%d \n", ret);
-        if(inc[index]){
+        if(ret){
             printf("%d \n", inc[index]);
         }
     }
