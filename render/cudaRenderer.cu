@@ -469,7 +469,7 @@ __global__ void kernelPerBlock(){
         float  rad = cuConstRendererParams.radius[index];
         inc[index] = circleInBoxConservative(p.x, p.y, rad, boxL, boxR, boxT, boxB);
         //add ret to shared array
-        printf("%d \n", inc[index])
+        printf("%d \n", inc[index]);
     }
     int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
     int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
