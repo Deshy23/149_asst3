@@ -431,9 +431,9 @@ __global__ void kernelRenderCircles() {
     }
 }
 
-__global__ void checkCircles(){
+// __global__ void checkCircles(){
 
-}
+// }
 
 __global__ void kernelPerBlock(){
     // for each circle
@@ -466,7 +466,7 @@ __global__ void kernelPerBlock(){
     if(index < numCircles){
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
         float  rad = cuConstRendererParams.radius[index];
-        inc[numCircles] = circleInBoxConservative(p.x, p.y, rad, boxL, boxR, boxT, boxB);
+        inc[index] = circleInBoxConservative(p.x, p.y, rad, boxL, boxR, boxT, boxB);
         //add ret to shared array
     }
     int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
@@ -706,9 +706,11 @@ CudaRenderer::render() {
                 shadepixel
     */
     // 256 threads per block is a healthy number
-
-    dim3 blockDim(256, 1);
-    dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
+    int width = cuConstRendererParams.imageWidth;
+    int height = cuConstRendererParams.imageHeight;
+    dim3 blockDim(16, 16);
+    // dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
+    dim3 gridDim((height + blockDim.y - 1) / blockDim.y, (width + blockDim.x - 1) / blockDim.x);
 
     kernelRenderCircles<<<gridDim, blockDim>>>();
     cudaDeviceSynchronize();
