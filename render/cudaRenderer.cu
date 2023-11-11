@@ -499,7 +499,7 @@ __global__ void kernelPerBlock(){
             for(int j = 0; j < pixelX; i ++){
                 imgPtr++;
             }
-            printf("%d = %d \n", (*imgPtr).x, (*imgPt).x);
+            printf("%f = %f \n", (*imgPtr).x, (*imgPt).x);
             float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
                                                  invHeight * (static_cast<float>(pixelY) + 0.5f));
             //shadePixel
