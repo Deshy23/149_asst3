@@ -473,7 +473,7 @@ __global__ void kernelPerBlock(){
     // }
     const int numCircles = cuConstRendererParams.numCircles;
     //launch check for every circle
-    if(index == 2){
+    if(index < numCircles){
         
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
         // printf("px = %f, py = %f \n", p.x, p.y);
@@ -483,7 +483,7 @@ __global__ void kernelPerBlock(){
         int ret = circleInBox(p.x, p.y, rad, L, R, T, B);
         
         //add ret to shared array
-        inc[index] = ret;
+        inc[index + 1] = ret;
         // printf("%d \n", ret);
     }
     // if(threadIdx.x ==0 && threadIdx.y ==0){
@@ -505,7 +505,7 @@ __global__ void kernelPerBlock(){
                                                  invHeight * (static_cast<float>(pixelY) + 0.5f));
     int counter = 0;
     for(int i = 0; i < numCircles; i++){
-        if(inc[i]){
+        if(inc[i + 1]){
             // printf("hello");
             (*imgPtr).x = 0.0;
             (*imgPtr).y = 0.0 + counter * 0.5;
@@ -754,6 +754,6 @@ CudaRenderer::render() {
     dim3 gridDim((height+ blockDim.y - 1) / blockDim.y, (width + blockDim.x - 1) / blockDim.x);
 
     // kernelRenderCircles<<<gridDim, blockDim>>>();
-    kernelPerBlock<<<gridDim, blockDim, numCircles * sizeof(int)>>>();
+    kernelPerBlock<<<gridDim, blockDim, (numCircles + 1) * sizeof(int)>>>();
     cudaDeviceSynchronize();
 }
