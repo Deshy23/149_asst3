@@ -508,7 +508,7 @@ __global__ void kernelPerBlock(){
     for(int i = 0; i < numCircles; i++){
     //     // printf("px = %f, py = %f \n", p.x, p.y);
         // float  rad = cuConstRendererParams.radius[i];
-        float3 p = *(float3*)(&cuConstRendererParams.position[i * 3]);
+        // float3 p = *(float3*)(&cuConstRendererParams.position[i * 3]);
         // if(circleInBox(p.x, p.y, rad, L, R, T, B)){
         if(inc[256 * i + index]){
             // printf("hello");
@@ -516,7 +516,7 @@ __global__ void kernelPerBlock(){
             // (*imgPtr).y = 0.0 + counter * 0.5;
             // (*imgPtr).z = 0.0;
             // (*imgPtr).w = (*imgPtr).w + 0.5f;
-            // float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+            float3 p = *(float3*)(&cuConstRendererParams.position[i * 3]);
             // counter = counter + 1;
             //shadePixel
             shadePixel(i, pixelCenterNorm, p, imgPtr);
