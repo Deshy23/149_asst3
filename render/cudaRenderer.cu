@@ -760,6 +760,6 @@ CudaRenderer::render() {
     dim3 gridDim((height+ blockDim.y - 1) / blockDim.y, (width + blockDim.x - 1) / blockDim.x);
 
     // kernelRenderCircles<<<gridDim, blockDim>>>();
-    kernelPerBlock<<<gridDim, blockDim, (numCircles * 256) * sizeof(bool)>>>();
+    kernelPerBlock<<<gridDim, blockDim>>>();
     cudaDeviceSynchronize();
 }
