@@ -510,7 +510,7 @@ __global__ void kernelPerBlock(){
     //     // printf("px = %f, py = %f \n", p.x, p.y);
         float  rad = cuConstRendererParams.radius[i];
         float3 p = *(float3*)(&cuConstRendererParams.position[i * 3]);
-        if(circleInBox(p.x, p.y, rad, L, R, T, B)){
+        if(circleInBoxConservative(p.x, p.y, rad, L, R, T, B)){
         // if(inc[i]){
             // printf("hello");
             // (*imgPtr).x = 0.0;
