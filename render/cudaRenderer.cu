@@ -664,7 +664,7 @@ __global__ void kernelPerBlock_new(){
             imgPtr = imgPtr + pixelX;
             float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
                                                             invHeight * (static_cast<float>(pixelY) + 0.5f));
-            for(int i = 0; i < numCircles; i++){
+            for(int i = j; i < (j + 1) * numCircles; i++){
             //     // printf("px = %f, py = %f \n", p.x, p.y);
                 float  rad = cuConstRendererParams.radius[i];
                 float3 p = positions[i];
