@@ -625,6 +625,7 @@ __global__ void kernelPerBlock_new(){
     
     __shared__ float3 colors [1024];
     __shared__ float3 positions[1024];
+    __shared__ float radius;
     const int numCircles = cuConstRendererParams.numCircles;
     short imageWidth = cuConstRendererParams.imageWidth;
     short imageHeight = cuConstRendererParams.imageHeight;
@@ -916,7 +917,7 @@ CudaRenderer::render() {
     dim3 gridDim((height+ blockDim.x - 1) / blockDim.x, (width + blockDim.y - 1) / blockDim.y);
 
     // kernelRenderCircles<<<gridDim, blockDim>>>();
-    // kernelPerBlock<<<gridDim, blockDim>>>();
-    kernelPerBlock_new<<<gridDim, blockDim>>>();
+    kernelPerBlock<<<gridDim, blockDim>>>();
+    // kernelPerBlock_new<<<gridDim, blockDim>>>();
     cudaDeviceSynchronize();
 }
