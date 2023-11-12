@@ -672,7 +672,7 @@ __global__ void kernelPerBlock_new(){
                     if(circleInBoxConservative(p.x, p.y, rad, L, R, T, B)){
                         //shadePixel
                         float3 rgb = colors[i];
-                        shadePixelCircle(i, pixelCenterNorm, p, rgb, imgPtr);
+                        shadePixelCircle((i + offset), pixelCenterNorm, p, rgb, imgPtr);
                     }
                 }
                 
