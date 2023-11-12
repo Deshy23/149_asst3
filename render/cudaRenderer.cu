@@ -440,7 +440,7 @@ __global__ void kernelPerBlock(){
     //      serial for every overlap circle
     //             shadepixel
     
-    // extern __shared__ int inc [];
+    extern __shared__ int inc [];
     short imageWidth = cuConstRendererParams.imageWidth;
     short imageHeight = cuConstRendererParams.imageHeight;
     float invWidth = 1.f / imageWidth;
@@ -473,19 +473,19 @@ __global__ void kernelPerBlock(){
     // }
     const int numCircles = cuConstRendererParams.numCircles;
     //launch check for every circle
-    // if(index < numCircles){
+    if(index < numCircles){
         
-    //     float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
-    //     // printf("px = %f, py = %f \n", p.x, p.y);
-    //     float  rad = cuConstRendererParams.radius[index];
-    //     // printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
-    //     // int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
-    //     int ret = circleInBox(p.x, p.y, rad, L, R, T, B);
+        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+        // printf("px = %f, py = %f \n", p.x, p.y);
+        float  rad = cuConstRendererParams.radius[index];
+        // printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
+        // int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
+        int ret = circleInBox(p.x, p.y, rad, L, R, T, B);
         
-    //     //add ret to shared array
-    //     inc[index + 1] = ret;
-    //     // printf("%d \n", ret);
-    // }
+        //add ret to shared array
+        inc[index + 1] = ret;
+        // printf("%d \n", ret);
+    }
     // if(threadIdx.x ==0 && threadIdx.y ==0){
     // for(int i = 0; i < numCircles; i++){
     //     printf("%d \n", inc[i]);
@@ -505,17 +505,18 @@ __global__ void kernelPerBlock(){
                                                  invHeight * (static_cast<float>(pixelY) + 0.5f));
     int counter = 0;
     for(int i = 0; i < numCircles; i++){
-        float3 p = *(float3*)(&cuConstRendererParams.position[i * 3]);
     //     // printf("px = %f, py = %f \n", p.x, p.y);
-        float  rad = cuConstRendererParams.radius[i];
-        if(circleInBox(p.x, p.y, rad, L, R, T, B)){
+        // float  rad = cuConstRendererParams.radius[i];
+        // if(circleInBox(p.x, p.y, rad, L, R, T, B)){
+        if(inc[i]){
+            float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
             // printf("hello");
             // (*imgPtr).x = 0.0;
             // (*imgPtr).y = 0.0 + counter * 0.5;
             // (*imgPtr).z = 0.0;
             // (*imgPtr).w = (*imgPtr).w + 0.5f;
             // float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
-            counter = counter + 1;
+            // counter = counter + 1;
             //shadePixel
             shadePixel(i, pixelCenterNorm, p, imgPtr);
         }
