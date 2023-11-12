@@ -440,7 +440,7 @@ __global__ void kernelPerBlock(){
     //      serial for every overlap circle
     //             shadepixel
     
-    extern __shared__ int inc [];
+    extern __shared__ bool inc [];
     short imageWidth = cuConstRendererParams.imageWidth;
     short imageHeight = cuConstRendererParams.imageHeight;
     float invWidth = 1.f / imageWidth;
@@ -474,16 +474,17 @@ __global__ void kernelPerBlock(){
     const int numCircles = cuConstRendererParams.numCircles;
     //launch check for every circle
     if(index < numCircles){
-        
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
         // printf("px = %f, py = %f \n", p.x, p.y);
         float  rad = cuConstRendererParams.radius[index];
         // printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
         // int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
-        int ret = circleInBox(p.x, p.y, rad, L, R, T, B);
+        bool ret = static_cast<bool>(circleInBox(p.x, p.y, rad, L, R, T, B));
         
         //add ret to shared array
-        inc[index] = ret;
+        for(int i = 0; i < 256; i++){
+            inc[256*index + i] = ret;
+        }
         // printf("%d \n", ret);
     }
     // if(threadIdx.x ==0 && threadIdx.y ==0){
@@ -508,7 +509,7 @@ __global__ void kernelPerBlock(){
     //     // printf("px = %f, py = %f \n", p.x, p.y);
         // float  rad = cuConstRendererParams.radius[i];
         // if(circleInBox(p.x, p.y, rad, L, R, T, B)){
-        if(inc[i]){
+        if(inc[256 * i + index]){
             float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
             // printf("hello");
             // (*imgPtr).x = 0.0;
@@ -758,6 +759,6 @@ CudaRenderer::render() {
     dim3 gridDim((height+ blockDim.y - 1) / blockDim.y, (width + blockDim.x - 1) / blockDim.x);
 
     // kernelRenderCircles<<<gridDim, blockDim>>>();
-    kernelPerBlock<<<gridDim, blockDim, (numCircles + 1) * sizeof(int)>>>();
+    kernelPerBlock<<<gridDim, blockDim, (numCircles * 256) * sizeof(bool)>>>();
     cudaDeviceSynchronize();
 }
