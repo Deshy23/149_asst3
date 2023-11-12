@@ -679,7 +679,7 @@ __global__ void kernelPerBlock_new(){
                 if(i + (j*1024) < numCircles){
                     if(inc[i]){
                         //shadePixel
-                        float  rad = cuConstRendererParams.radius[i + offset];
+                        // float  rad = cuConstRendererParams.radius[i + offset];
                         float3 p = positions[i];
                         float3 rgb = colors[i];
                         shadePixelCircle((i + offset), pixelCenterNorm, p, rgb, imgPtr);
@@ -926,7 +926,7 @@ CudaRenderer::render() {
     dim3 gridDim((height+ blockDim.x - 1) / blockDim.x, (width + blockDim.y - 1) / blockDim.y);
 
     // kernelRenderCircles<<<gridDim, blockDim>>>();
-    kernelPerBlock<<<gridDim, blockDim>>>();
-    // kernelPerBlock_new<<<gridDim, blockDim>>>();
+    // kernelPerBlock<<<gridDim, blockDim>>>();
+    kernelPerBlock_new<<<gridDim, blockDim>>>();
     cudaDeviceSynchronize();
 }
