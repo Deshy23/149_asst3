@@ -667,7 +667,7 @@ __global__ void kernelPerBlock_new(){
             for(int i = 0; i < 1024; i++){
             //     // printf("px = %f, py = %f \n", p.x, p.y);
                 if(i + (j*1024) < numCircles){
-                    float  rad = cuConstRendererParams.radius[i];
+                    float  rad = cuConstRendererParams.radius[i + offset];
                     float3 p = positions[i];
                     if(circleInBoxConservative(p.x, p.y, rad, L, R, T, B)){
                         //shadePixel
