@@ -495,7 +495,7 @@ __global__ void kernelPerBlock(){
     // int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
     //for circle in circles
     int pixelX = boxL + threadIdx.x;
-    int pixelY = boxT + threadIdx.y;
+    int pixelY = boxB + threadIdx.y;
     if(pixelX >= imageWidth || pixelY >= imageHeight){
         return;
     }
