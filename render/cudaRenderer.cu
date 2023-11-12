@@ -638,7 +638,7 @@ __global__ void kernelPerBlock_new(){
         populate_colors(index, index3, colors);
         populate_positions(index, index3, positions);
     }
-    __syncthreads;
+    __syncthreads();
     //get bounds of current block, maybe make into shared constant
     short boxL = blockIdx.x * blockDim.x;
     short boxR = (blockIdx.x + 1) * blockDim.x;
