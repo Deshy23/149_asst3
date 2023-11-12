@@ -482,9 +482,10 @@ __global__ void kernelPerBlock(){
         bool ret = static_cast<bool>(circleInBox(p.x, p.y, rad, L, R, T, B));
         
         //add ret to shared array
-        for(int i = 0; i < 256; i++){
-            inc[256*index + i] = ret;
-        }
+        // for(int i = 0; i < 256; i++){
+        //     inc[256*index + i] = ret;
+        // }
+        inc[index] = ret;
         // printf("%d \n", ret);
     }
     // if(threadIdx.x ==0 && threadIdx.y ==0){
@@ -510,7 +511,7 @@ __global__ void kernelPerBlock(){
         // float  rad = cuConstRendererParams.radius[i];
         // float3 p = *(float3*)(&cuConstRendererParams.position[i * 3]);
         // if(circleInBox(p.x, p.y, rad, L, R, T, B)){
-        if(inc[256 * i + index]){
+        if(inc[i]){
             // printf("hello");
             // (*imgPtr).x = 0.0;
             // (*imgPtr).y = 0.0 + counter * 0.5;
