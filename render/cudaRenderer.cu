@@ -14,6 +14,9 @@
 #include "sceneLoader.h"
 #include "util.h"
 
+#define SCAN_BLOCK_DIM   256  // needed by sharedMemExclusiveScan implementation
+#include "exclusiveScan.cu_inl"
+
 // #include "exclusiveScan.cu_inl"
 #include "circleBoxTest.cu_inl"
 
@@ -386,6 +389,8 @@ shadePixel(int circleIndex, float2 pixelCenter, float3 p, float4* imagePtr) {
 // Each thread renders a circle.  Since there is no protection to
 // ensure order of update or mutual exclusion on the output image, the
 // resulting image will be incorrect.
+
+
 __global__ void kernelRenderCircles() {
 
     int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -428,6 +433,36 @@ __global__ void kernelRenderCircles() {
     }
 }
 
+// __device__ __inline__ void populate_circle_array(uint* prefixSumInput, uint* mask, int linearThreadIndex, float2 pixelCenter, float3 p){
+//     float diffX = p.x - pixelCenter.x;
+//     float diffY = p.y - pixelCenter.y;
+//     float pixelDist = diffX * diffX + diffY * diffY;
+
+//     float rad = cuConstRendererParams.radius[linearThreadIndex];
+//     float maxDist = rad * rad;
+
+//     if (pixelDist > maxDist){
+//         prefixSumInput[linearThreadIndex] = 0;
+//         mask[linearThreadIndex] = 0;
+//         return;
+//     }
+
+    
+// }
+
+// __global__ void kernelperCircle(){
+//     int linearThreadIndex =  threadIdx.y * blockDim.x + threadIdx.x;
+//     __shared__ uint prefixSumInput_x[SCAN_BLOCK_DIM ];
+//     __shared__ uint prefixSumOutput_x[SCAN_BLOCK_DIM ];
+//     __shared__ uint prefixSumInput_y[SCAN_BLOCK_DIM ];
+//     __shared__ uint prefixSumOutput_y[SCAN_BLOCK_DIM ];
+//     __shared__ uint prefixSumInput_z[SCAN_BLOCK_DIM ];
+//     __shared__ uint prefixSumOutput_z[SCAN_BLOCK_DIM ];
+//     __shared__ uint prefixSumScratch[SCAN_BLOCK_DIM ];
+//     sharedMemExclusiveScan(linearThreadIndex, prefixSumInput, prefixSumOutput, prefixSumScratch, SCAN_BLOCK_DIM);
+    
+// }
+
 // __global__ void checkCircles(){
 
 // }
@@ -440,7 +475,7 @@ __global__ void kernelPerBlock(){
     //      serial for every overlap circle
     //             shadepixel
     
-    extern __shared__ bool inc [];
+    // __shared__ int inc [10000];
     short imageWidth = cuConstRendererParams.imageWidth;
     short imageHeight = cuConstRendererParams.imageHeight;
     float invWidth = 1.f / imageWidth;
@@ -756,7 +791,7 @@ CudaRenderer::render() {
     printf("h = %d", height);
     printf("w = %d", width);
     printf("nc = %d", numCircles);
-    dim3 blockDim(16, 16);
+    dim3 blockDim(8, 32);
     dim3 gridDim((height+ blockDim.y - 1) / blockDim.y, (width + blockDim.x - 1) / blockDim.x);
 
     // kernelRenderCircles<<<gridDim, blockDim>>>();
