@@ -631,15 +631,7 @@ __global__ void kernelPerBlock_new(){
     float invWidth = 1.f / imageWidth;
     float invHeight = 1.f / imageHeight;
     int index = threadIdx.x + threadIdx.y * blockDim.x;
-    // printf("blockx %d", imageWidth);
-    // printf("blocky %d \n", imageHeight);
-    int index3 = index * 3;
-    if(index < numCircles){
-        populate_colors(index, index3, colors);
-        populate_positions(index, index3, positions);
-    }
-    __syncthreads();
-    //get bounds of current block, maybe make into shared constant
+
     short boxL = blockIdx.x * blockDim.x;
     short boxR = (blockIdx.x + 1) * blockDim.x;
     short boxB = blockIdx.y * blockDim.y;
@@ -654,66 +646,38 @@ __global__ void kernelPerBlock_new(){
     float R = static_cast<float>(invWidth * boxR);
     float T = static_cast<float>(invHeight * boxT);
     float B = static_cast<float>(invHeight * boxB);
-
-    // if(threadIdx.x == 0 && threadIdx.y == 0){
-    //     printf("L = %d, R = %d, T = %d, B = %d \n", boxL, boxR, boxT, boxB);
-    //     // printf("R = %d \n", boxR);
-    //     printf("L = %f, R = %f, T = %f, B = %f \n", L, R, T, B);
-    // }
-
-    //launch check for every circle
-    // if(index < numCircles){
-    //     float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
-    //     // printf("px = %f, py = %f \n", p.x, p.y);
-    //     float  rad = cuConstRendererParams.radius[index];
-    //     // printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
-    //     // int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
-    //     bool ret = static_cast<bool>(circleInBox(p.x, p.y, rad, L, R, T, B));
-        
-    //     //add ret to shared array
-    //     // for(int i = 0; i < 256; i++){
-    //     //     inc[256*index + i] = ret;
-    //     // }
-    //     inc[index] = ret;
-    //     // printf("%d \n", ret);
-    // }
-    // if(threadIdx.x ==0 && threadIdx.y ==0){
-    // for(int i = 0; i < numCircles; i++){
-    //     printf("%d \n", inc[i]);
-    // }
-    // }
-    // int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
-    // int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
-    //for circle in circles
     int pixelX = boxL + threadIdx.x;
     int pixelY = boxB + threadIdx.y;
-    if(pixelX >= imageWidth || pixelY >= imageHeight){
-        return;
-    }
-    float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
-    imgPtr = imgPtr + pixelX;
-    float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
-                                                 invHeight * (static_cast<float>(pixelY) + 0.5f));
-    int counter = 0;
-    for(int i = 0; i < numCircles; i++){
-    //     // printf("px = %f, py = %f \n", p.x, p.y);
-        float  rad = cuConstRendererParams.radius[i];
-        float3 p = positions[i];
-        if(circleInBoxConservative(p.x, p.y, rad, L, R, T, B)){
-        // if(inc[i]){
-            // printf("hello");
-            // (*imgPtr).x = 0.0;
-            // (*imgPtr).y = 0.0 + counter * 0.5;
-            // (*imgPtr).z = 0.0;
-            // (*imgPtr).w = (*imgPtr).w + 0.5f;
-            // float3 p = *(float3*)(&cuConstRendererParams.position[i * 3]);
-            // counter = counter + 1;
-            //shadePixel
-            float3 rgb = colors[i];
-            shadePixelCircle(i, pixelCenterNorm, p, rgb, imgPtr);
+    // printf("blockx %d", imageWidth);
+    // printf("blocky %d \n", imageHeight);
+    for(int j = 0; j < ((numCircles+1023)/1024); j++){
+        index = index + j *1024;
+        int index3 = index * 3;
+        if(index + j < numCircles){
+            populate_colors(index, index3, colors);
+            populate_positions(index, index3, positions);
         }
-        
+        __syncthreads();
+        //get bounds of current block, maybe make into shared constant
+        if(!(pixelX >= imageWidth || pixelY >= imageHeight)){
+            float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
+            imgPtr = imgPtr + pixelX;
+            float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
+                                                            invHeight * (static_cast<float>(pixelY) + 0.5f));
+            for(int i = 0; i < numCircles; i++){
+            //     // printf("px = %f, py = %f \n", p.x, p.y);
+                float  rad = cuConstRendererParams.radius[i];
+                float3 p = positions[i];
+                if(circleInBoxConservative(p.x, p.y, rad, L, R, T, B)){
+                    //shadePixel
+                    float3 rgb = colors[i];
+                    shadePixelCircle(i, pixelCenterNorm, p, rgb, imgPtr);
+                }
+                
+            }
+        }
     }
+    __syncthreads();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -943,9 +907,9 @@ CudaRenderer::render() {
     // self.imageHeight;
     // dim3 blockDim(256, 1);
     // dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
-    printf("h = %d", height);
-    printf("w = %d", width);
-    printf("nc = %d", numCircles);
+    // printf("h = %d", height);
+    // printf("w = %d", width);
+    // printf("nc = %d", numCircles);
     dim3 blockDim(8, 128);
     dim3 gridDim((height+ blockDim.x - 1) / blockDim.x, (width + blockDim.y - 1) / blockDim.y);
 
