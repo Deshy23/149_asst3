@@ -453,8 +453,8 @@ __global__ void kernelPerBlock(){
     //get bounds of current block, maybe make into shared constant
     short boxL = blockIdx.x * blockDim.x;
     short boxR = (blockIdx.x + 1) * blockDim.x;
-    short boxT = blockIdx.y * blockDim.y;
-    short boxB = (blockIdx.y + 1) * blockDim.y;
+    short boxB = blockIdx.y * blockDim.y;
+    short boxT = (blockIdx.y + 1) * blockDim.y;
     
     boxL = (boxL > 0) ? ((boxL < imageWidth) ? boxL : imageWidth) : 0;
     boxR = (boxR > 0) ? ((boxR < imageWidth) ? boxR : imageWidth) : 0;
