@@ -507,10 +507,10 @@ __global__ void kernelPerBlock(){
     int counter = 0;
     for(int i = 0; i < numCircles; i++){
     //     // printf("px = %f, py = %f \n", p.x, p.y);
-        // float  rad = cuConstRendererParams.radius[i];
-        // if(circleInBox(p.x, p.y, rad, L, R, T, B)){
-        if(inc[256 * i + index]){
-            float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+        float  rad = cuConstRendererParams.radius[i];
+        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+        if(circleInBox(p.x, p.y, rad, L, R, T, B)){
+        // if(inc[256 * i + index]){
             // printf("hello");
             // (*imgPtr).x = 0.0;
             // (*imgPtr).y = 0.0 + counter * 0.5;
