@@ -653,7 +653,7 @@ __global__ void kernelPerBlock_new(){
     for(int j = 0; j < ((numCircles+1023)/1024); j++){
         int offset = j*1024;
         int index3 = (index +offset) * 3;
-        if(index + j < numCircles){
+        if(index + offset < numCircles){
             populate_colors(index, index3, colors);
             populate_positions(index, index3, positions);
         }
