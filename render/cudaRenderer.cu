@@ -615,6 +615,10 @@ __device__ __inline__ void populate_positions(int index, int index3, float3* pos
     positions[index] = *(float3*)&(cuConstRendererParams.position[index3]);
 }
 
+__device__ __inline__ void populate_radii(int index, int i, float* radii){
+    radii[index] = (cuConstRendererParams.radius[i]);
+}
+
 __global__ void kernelPerBlock_new(){
     // for each circle
     //      check box
@@ -625,7 +629,8 @@ __global__ void kernelPerBlock_new(){
     
     __shared__ float3 colors [1024];
     __shared__ float3 positions[1024];
-    __shared__ float radius;
+    __shared__ float radii[1024]; 
+    __shared__ bool inc [1024];
     const int numCircles = cuConstRendererParams.numCircles;
     short imageWidth = cuConstRendererParams.imageWidth;
     short imageHeight = cuConstRendererParams.imageHeight;
@@ -655,8 +660,12 @@ __global__ void kernelPerBlock_new(){
         int offset = j*1024;
         int index3 = (index +offset) * 3;
         if(index + offset < numCircles){
-            populate_colors(index, index3, colors);
             populate_positions(index, index3, positions);
+            populate_radii(index, index + offset, radii);
+            __syncthreads();
+            populate_colors(index, index3, colors);
+            float3 p = positions[index];
+            inc[index] = static_cast<bool>(circleInBoxConservative(p.x, p.y, radii[index], L, R, T, B));
         }
         __syncthreads();
         //get bounds of current block, maybe make into shared constant
@@ -668,10 +677,10 @@ __global__ void kernelPerBlock_new(){
             for(int i = 0; i < 1024; i++){
             //     // printf("px = %f, py = %f \n", p.x, p.y);
                 if(i + (j*1024) < numCircles){
-                    float  rad = cuConstRendererParams.radius[i + offset];
-                    float3 p = positions[i];
-                    if(circleInBoxConservative(p.x, p.y, rad, L, R, T, B)){
+                    if(inc[i]){
                         //shadePixel
+                        float  rad = cuConstRendererParams.radius[i + offset];
+                        float3 p = positions[i];
                         float3 rgb = colors[i];
                         shadePixelCircle((i + offset), pixelCenterNorm, p, rgb, imgPtr);
                     }
