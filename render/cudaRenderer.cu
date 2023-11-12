@@ -662,6 +662,7 @@ __global__ void kernelPerBlock_new(){
         if(index + offset < numCircles){
             populate_positions(index, index3, positions);
             populate_radii(index, index + offset, radii);
+            printf("here");
             __syncthreads();
             populate_colors(index, index3, colors);
             float3 p = positions[index];
