@@ -651,8 +651,8 @@ __global__ void kernelPerBlock_new(){
     // printf("blockx %d", imageWidth);
     // printf("blocky %d \n", imageHeight);
     for(int j = 0; j < ((numCircles+1023)/1024); j++){
-        index = index + j *1024;
-        int index3 = index * 3;
+        int offset = j*1024;
+        int index3 = (index +offset) * 3;
         if(index + j < numCircles){
             populate_colors(index, index3, colors);
             populate_positions(index, index3, positions);
