@@ -384,6 +384,50 @@ shadePixel(int circleIndex, float2 pixelCenter, float3 p, float4* imagePtr) {
     // END SHOULD-BE-ATOMIC REGION
 }
 
+__device__ __inline__ void
+shadePixelCircle(int circleIndex, float2 pixelCenter, float3 p, float3 rgb,float4* imagePtr) {
+
+    float diffX = p.x - pixelCenter.x;
+    float diffY = p.y - pixelCenter.y;
+    float pixelDist = diffX * diffX + diffY * diffY;
+
+    float rad = cuConstRendererParams.radius[circleIndex];;
+    float maxDist = rad * rad;
+
+    // circle does not contribute to the image
+    if (pixelDist > maxDist)
+        return;
+
+    float alpha;
+
+    // there is a non-zero contribution.  Now compute the shading value
+
+    // suggestion: This conditional is in the inner loop.  Although it
+    // will evaluate the same for all threads, there is overhead in
+    // setting up the lane masks etc to implement the conditional.  It
+    // would be wise to perform this logic outside of the loop next in
+    // kernelRenderCircles.  (If feeling good about yourself, you
+    // could use some specialized template magic).
+        // simple: each circle has an assigned color
+    alpha = .5f;
+
+    // BEGIN SHOULD-BE-ATOMIC REGION
+    // global memory read
+
+    float4 existingColor = *imagePtr;
+    float4 newColor;
+    newColor.x = alpha * (rgb.x + existingColor.x);
+    newColor.y = alpha * (rgb.y + existingColor.y);
+    newColor.z = alpha * (rgb.z + existingColor.z);
+    newColor.w = alpha + existingColor.w;
+    //printf("ncx%f ,ecx %f , ncy%f ,ecy %f, ncz%f ,ecz %f \n", newColor.x, existingColor.x, newColor.y, existingColor.y, newColor.z, existingColor.z);
+    // global memory write
+    *imagePtr = newColor;
+
+    // END SHOULD-BE-ATOMIC REGION
+}
+
+
 // kernelRenderCircles -- (CUDA device code)
 //
 // Each thread renders a circle.  Since there is no protection to
@@ -475,7 +519,9 @@ __global__ void kernelPerBlock(){
     //      serial for every overlap circle
     //             shadepixel
     
-    // __shared__ int inc [10000];
+    // __shared__ float colors [1024 * 3];
+    // __shared__ float3 positions[1024];
+    
     short imageWidth = cuConstRendererParams.imageWidth;
     short imageHeight = cuConstRendererParams.imageHeight;
     float invWidth = 1.f / imageWidth;
@@ -556,6 +602,115 @@ __global__ void kernelPerBlock(){
             // counter = counter + 1;
             //shadePixel
             shadePixel(i, pixelCenterNorm, p, imgPtr);
+        }
+        
+    }
+}
+
+__device__ __inline__ void populate_colors(int index, int index3, float3* colors){
+    colors[index] = *(float3*)&(cuConstRendererParams.color[index3]);
+}
+
+__device__ __inline__ void populate_positions(int index, int index3, float3* positions){
+    positions[index] = *(float3*)&(cuConstRendererParams.position[index3]);
+}
+
+__global__ void kernelPerBlock_new(){
+    // for each circle
+    //      check box
+    //  calculate in order
+    //  for each pixel
+    //      serial for every overlap circle
+    //             shadepixel
+    
+    __shared__ float3 colors [1024];
+    __shared__ float3 positions[1024];
+    const int numCircles = cuConstRendererParams.numCircles;
+    short imageWidth = cuConstRendererParams.imageWidth;
+    short imageHeight = cuConstRendererParams.imageHeight;
+    float invWidth = 1.f / imageWidth;
+    float invHeight = 1.f / imageHeight;
+    int index = threadIdx.x + threadIdx.y * blockDim.x;
+    // printf("blockx %d", imageWidth);
+    // printf("blocky %d \n", imageHeight);
+    int index3 = index * 3;
+    if(index < numCircles){
+        populate_colors(index, index3, colors);
+        populate_positions(index, index3, positions);
+    }
+    __syncthreads;
+    //get bounds of current block, maybe make into shared constant
+    short boxL = blockIdx.x * blockDim.x;
+    short boxR = (blockIdx.x + 1) * blockDim.x;
+    short boxB = blockIdx.y * blockDim.y;
+    short boxT = (blockIdx.y + 1) * blockDim.y;
+    
+    boxL = (boxL > 0) ? ((boxL < imageWidth) ? boxL : imageWidth) : 0;
+    boxR = (boxR > 0) ? ((boxR < imageWidth) ? boxR : imageWidth) : 0;
+    boxT = (boxT > 0) ? ((boxT < imageHeight) ? boxT : imageHeight) : 0;
+    boxB = (boxB > 0) ? ((boxB < imageHeight) ? boxB : imageHeight) : 0;
+
+    float L = static_cast<float>(invWidth * boxL);
+    float R = static_cast<float>(invWidth * boxR);
+    float T = static_cast<float>(invHeight * boxT);
+    float B = static_cast<float>(invHeight * boxB);
+
+    // if(threadIdx.x == 0 && threadIdx.y == 0){
+    //     printf("L = %d, R = %d, T = %d, B = %d \n", boxL, boxR, boxT, boxB);
+    //     // printf("R = %d \n", boxR);
+    //     printf("L = %f, R = %f, T = %f, B = %f \n", L, R, T, B);
+    // }
+
+    //launch check for every circle
+    // if(index < numCircles){
+    //     float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+    //     // printf("px = %f, py = %f \n", p.x, p.y);
+    //     float  rad = cuConstRendererParams.radius[index];
+    //     // printf("L = %f, R = %f, T = %f, B = %f, px = %f, py = %f\n", L, R, T, B, p.x, p.y);
+    //     // int ret = circleInBoxConservative(p.x, p.y, rad, L, R, T, B);
+    //     bool ret = static_cast<bool>(circleInBox(p.x, p.y, rad, L, R, T, B));
+        
+    //     //add ret to shared array
+    //     // for(int i = 0; i < 256; i++){
+    //     //     inc[256*index + i] = ret;
+    //     // }
+    //     inc[index] = ret;
+    //     // printf("%d \n", ret);
+    // }
+    // if(threadIdx.x ==0 && threadIdx.y ==0){
+    // for(int i = 0; i < numCircles; i++){
+    //     printf("%d \n", inc[i]);
+    // }
+    // }
+    // int pixelX = threadIdx.x + blockDim.x * blockIdx.x;
+    // int pixelY = threadIdx.y + blockDim.y * blockIdx.y;
+    //for circle in circles
+    int pixelX = boxL + threadIdx.x;
+    int pixelY = boxB + threadIdx.y;
+    if(pixelX >= imageWidth || pixelY >= imageHeight){
+        return;
+    }
+    float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
+    imgPtr = imgPtr + pixelX;
+    float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
+                                                 invHeight * (static_cast<float>(pixelY) + 0.5f));
+    int counter = 0;
+    for(int i = 0; i < numCircles; i++){
+    //     // printf("px = %f, py = %f \n", p.x, p.y);
+        float  rad = cuConstRendererParams.radius[i];
+        float3 p = positions[i];
+        if(circleInBoxConservative(p.x, p.y, rad, L, R, T, B)){
+        // if(inc[i]){
+            // printf("hello");
+            // (*imgPtr).x = 0.0;
+            // (*imgPtr).y = 0.0 + counter * 0.5;
+            // (*imgPtr).z = 0.0;
+            // (*imgPtr).w = (*imgPtr).w + 0.5f;
+            // float3 p = *(float3*)(&cuConstRendererParams.position[i * 3]);
+            // counter = counter + 1;
+            //shadePixel
+            float3 rgb = colors[i];
+            shadePixelCircle(i, pixelCenterNorm, p, rgb, imgPtr);
         }
         
     }
@@ -795,6 +950,7 @@ CudaRenderer::render() {
     dim3 gridDim((height+ blockDim.x - 1) / blockDim.x, (width + blockDim.y - 1) / blockDim.y);
 
     // kernelRenderCircles<<<gridDim, blockDim>>>();
-    kernelPerBlock<<<gridDim, blockDim>>>();
+    // kernelPerBlock<<<gridDim, blockDim>>>();
+    kernelPerBlock_new<<<gridDim, blockDim>>>();
     cudaDeviceSynchronize();
 }
