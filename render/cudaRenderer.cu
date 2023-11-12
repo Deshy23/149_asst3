@@ -483,7 +483,7 @@ __global__ void kernelPerBlock(){
         int ret = circleInBox(p.x, p.y, rad, L, R, T, B);
         
         //add ret to shared array
-        inc[index + 1] = ret;
+        inc[index] = ret;
         // printf("%d \n", ret);
     }
     // if(threadIdx.x ==0 && threadIdx.y ==0){
