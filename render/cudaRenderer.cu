@@ -662,8 +662,9 @@ __global__ void kernelPerBlock_new(){
         if(index + offset < numCircles){
             populate_positions(index, index3, positions);
             populate_radii(index, index + offset, radii);
-            printf("here");
-            __syncthreads();
+        }
+        __syncthreads();
+        if(index + offset < numCircles){
             populate_colors(index, index3, colors);
             float3 p = positions[index];
             inc[index] = static_cast<bool>(circleInBoxConservative(p.x, p.y, radii[index], L, R, T, B));
