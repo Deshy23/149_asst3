@@ -40,9 +40,10 @@ populate_zeroes(int start, int end, int* output) {
 __global__ void
 usweep_kernel(int N, int* output, int two_d, int two_dplus1) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
-    index *= two_dplus1;
+    // index *= two_dplus1;
     // int t = output[index+two_d-1];
-    if(index+two_dplus1-1 < N){
+    if(static_cast<long>(index + 1)* two_dplus1 - 1 < N){
+        index *= two_dplus1;
         output[index+two_dplus1-1] = output[index+two_d-1] + output[index+two_dplus1-1];
     }
 }
@@ -52,8 +53,9 @@ dsweep_kernel(int N, int* output, int two_d, int two_dplus1) {
 
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     // int t = output[index+two_d-1];
-    index *= two_dplus1;
-    if(index+two_dplus1-1 < N){
+    // index *= two_dplus1;
+    if(static_cast<long>(index + 1)* two_dplus1 - 1 < N){
+        index *= two_dplus1;
         int tmp = output[index+two_d-1];
         output[index+two_d-1] = output[index+two_dplus1-1];
         output[index+two_dplus1-1] = output[index+two_dplus1-1] + tmp;
