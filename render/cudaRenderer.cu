@@ -734,7 +734,7 @@ __global__ void kernelPerBlockCircleSingle(){
                         float3 p = positions[i];
                         float3 rgb = colors[i];
                         float rad = radii[i];
-                        shadePixelCircle(i , pixelCenterNorm, p, rgb, rad, imgPtr);
+                        shadePixelCircle(pixelCenterNorm, p, rgb, rad, imgPtr);
                     }
                 
             }
