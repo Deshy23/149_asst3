@@ -257,7 +257,7 @@ kernelcompare(int N, int* input1, int* input2, int* output) {
         return;
     }
     output[i] = (input1[1] == input2[i + 1]);
-    printf("%d",output[i]);
+    if(!output[i]) printf("%d",output[i]);
     // atomicAdd_system(counter, output[i]);
 }
 // find_repeats --
