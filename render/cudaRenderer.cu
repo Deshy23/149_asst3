@@ -747,6 +747,77 @@ __global__ void kernelPerBlockCircle(){
     }
 }
 
+__global__ void kernelPerBlockSnow(){
+    // for each circle
+    //      check box
+    //  calculate in order
+    //  for each pixel
+    //      serial for every overlap circle
+    //             shadepixel
+    __shared__ float3 positions[1024];
+    __shared__ float radii[1024]; 
+    __shared__ bool inc [1024];
+    const int numCircles = cuConstRendererParams.numCircles;
+    short imageWidth = cuConstRendererParams.imageWidth;
+    short imageHeight = cuConstRendererParams.imageHeight;
+    float invWidth = 1.f / imageWidth;
+    float invHeight = 1.f / imageHeight;
+    int index = threadIdx.x + threadIdx.y * blockDim.x;
+
+    short boxL = blockIdx.x * blockDim.x;
+    short boxR = (blockIdx.x + 1) * blockDim.x;
+    short boxB = blockIdx.y * blockDim.y;
+    short boxT = (blockIdx.y + 1) * blockDim.y;
+    
+    boxL = (boxL > 0) ? ((boxL < imageWidth) ? boxL : imageWidth) : 0;
+    boxR = (boxR > 0) ? ((boxR < imageWidth) ? boxR : imageWidth) : 0;
+    boxT = (boxT > 0) ? ((boxT < imageHeight) ? boxT : imageHeight) : 0;
+    boxB = (boxB > 0) ? ((boxB < imageHeight) ? boxB : imageHeight) : 0;
+
+    float L = static_cast<float>(invWidth * boxL);
+    float R = static_cast<float>(invWidth * boxR);
+    float T = static_cast<float>(invHeight * boxT);
+    float B = static_cast<float>(invHeight * boxB);
+    int pixelX = boxL + threadIdx.x;
+    int pixelY = boxB + threadIdx.y;
+    // printf("blockx %d", imageWidth);
+    // printf("blocky %d \n", imageHeight);
+    for(int j = 0; j < ((numCircles+1023)/1024); j++){
+        int offset = j*1024;
+        int index3 = (index +offset) * 3;
+        if(index + offset < numCircles){
+            populate_positions(index, index3, positions);
+            populate_radii(index, index + offset, radii);
+        }
+        __syncthreads();
+        if(index + offset < numCircles){
+            float3 p = positions[index];
+            inc[index] = static_cast<bool>(circleInBoxConservative(p.x, p.y, radii[index], L, R, T, B));
+        }
+        __syncthreads();
+        //get bounds of current block, maybe make into shared constant
+        if(!(pixelX >= imageWidth || pixelY >= imageHeight)){
+            float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * ( pixelY * imageWidth)]);
+            imgPtr = imgPtr + pixelX;
+            float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(pixelX) + 0.5f),
+                                                            invHeight * (static_cast<float>(pixelY) + 0.5f));
+            for(int i = 0; i < 1024; i++){
+            //     // printf("px = %f, py = %f \n", p.x, p.y);
+                if(i + (j*1024) < numCircles){
+                    if(inc[i]){
+                        //shadePixel
+                        // float  rad = cuConstRendererParams.radius[i + offset];
+                        float3 p = positions[i];
+                        float rad = radii[i];
+                        shadePixelSnow((i + offset), pixelCenterNorm, p, rad, imgPtr);
+                    }
+                }
+                
+            }
+        }
+        __syncthreads();
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -974,14 +1045,20 @@ CudaRenderer::render() {
     // self.imageHeight;
     // dim3 blockDim(256, 1);
     // dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
-    printf("h = %d", height);
-    printf("w = %d", width);
-    printf("nc = %d", numCircles);
+    // printf("h = %d", height);
+    // printf("w = %d", width);
+    // printf("nc = %d", numCircles);
     dim3 blockDim(8, 128);
     dim3 gridDim((height+ blockDim.x - 1) / blockDim.x, (width + blockDim.y - 1) / blockDim.y);
 
     // kernelRenderCircles<<<gridDim, blockDim>>>();
     // kernelPerBlock<<<gridDim, blockDim>>>();
-    kernelPerBlockCircle<<<gridDim, blockDim>>>();
+    if (sceneName == SNOWFLAKES || sceneName == SNOWFLAKES_SINGLE_FRAME)
+    {
+        kernelPerBlockSnow<<<gridDim, blockDim>>>();
+    }
+    else{
+        kernelPerBlockCircle<<<gridDim, blockDim>>>();
+    }
     cudaDeviceSynchronize();
 }
