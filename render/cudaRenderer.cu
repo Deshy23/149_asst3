@@ -671,7 +671,7 @@ __device__ __inline__ void populate_radii(int index, int i, float* radii){
     radii[index] = (cuConstRendererParams.radius[i]);
 }
 
-__global__ void kernelPerBlockCircle(){
+__global__ void kernelPerBlockCircleSingle(){
     // for each circle
     //      check box
     //  calculate in order
@@ -1131,7 +1131,7 @@ CudaRenderer::render() {
         kernelPerBlockCircle<<<gridDim, blockDim>>>();
     }
     else{
-        kernelPerBlock<<<gridDim, blockDim>>>();
+        kernelPerBlockSingle<<<gridDim, blockDim>>>();
     }
     cudaDeviceSynchronize();
 }
