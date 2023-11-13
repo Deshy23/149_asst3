@@ -251,9 +251,12 @@ double cudaScanThrust(int* inarray, int* end, int* resultarray) {
 }
 
 __global__ void
-add_and_compare(int N, int* input1, int* input2, int* input3, int* output, int* counter) {
+kernelcompare(int N, int* input1, int* input2, int* output) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
-    output[i] = (input1[1] + input2[i]) == input3[i];
+    if(i > N-1){
+        return;
+    }
+    output[i] = (input1[1] == input2[i + 1]);
     // atomicAdd_system(counter, output[i]);
 }
 // find_repeats --
@@ -271,7 +274,7 @@ int find_repeats(int* device_input, int length, int* device_output) {
     // additional CUDA kernel launches.
     //    
     // Note: As in the scan code, the calling code ensures that
-    // allocated arrays are a power of 2 in size, so you can use your
+    // allocated arrays are a power of 2 in size, so you can use your 
     // exclusive_scan function with them. However, your implementation
     // must ensure that the results of find_repeats are correct given
     // the actual array length.
@@ -284,7 +287,17 @@ int find_repeats(int* device_input, int length, int* device_output) {
     // // cudaMalloc(&doutarray, sizeof(int) * (length + 1));
     // exclusive_scan(input, int N, int* result)
     // int N = nextPow2(length);
-    return 0; 
+    int N = nextPow2(length);
+    // int *input1 = (int *)malloc(N * sizeof(int));
+    // int *input2 = (int *)malloc(N * sizeof(int));
+    // cudaMemcpy(device_input, input1, N * sizeof(int), cudaMemcpyDeviceToHost);
+    // cudaMemcpy(device_input, input1, N * sizeof(int), cudaMemcpyDeviceToHost);
+    int blocks = (length + THREADS_PER_BLOCK - 1)/THREADS_PER_BLOCK;
+    kernelcompare<<<blocks, THREADS_PER_BLOCK>>>(N, device_input, device_input, device_output);
+    int *input1 = (int *)malloc(N * sizeof(int));
+    cudaMemcpy(input1, device_output, N * sizeof(int), cudaMemcpyDeviceToHost);
+    exclusive_scan(input1, length, input1);
+    return input1[length - 1]; 
 }
 
 
