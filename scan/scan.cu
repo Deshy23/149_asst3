@@ -256,7 +256,7 @@ kernelcompare(int N, int* input1, int* input2, int* output) {
     if(i > N-1){
         return;
     }
-    output[i] = (input1[1] == input2[i + 1]);
+    output[i] = (input1[i] == input2[i + 1]);
     if(!output[i]) printf("%d",i);
     // atomicAdd_system(counter, output[i]);
 }
