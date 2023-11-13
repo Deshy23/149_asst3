@@ -1127,11 +1127,11 @@ CudaRenderer::render() {
     {
         kernelPerBlockSnow<<<gridDim, blockDim>>>();
     }
-    else if(numCircles > 10){
+    else if(numCircles > 1024){
         kernelPerBlockCircle<<<gridDim, blockDim>>>();
     }
     else{
-        kernelPerBlockCircleSingle<<<gridDim, blockDim>>>();
+        kernelPerBlock<<<gridDim, blockDim>>>();
     }
     cudaDeviceSynchronize();
 }
