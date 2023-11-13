@@ -391,7 +391,7 @@ shadePixelCircle(int circleIndex, float2 pixelCenter, float3 p, float3 rgb, floa
     float diffY = p.y - pixelCenter.y;
     float pixelDist = diffX * diffX + diffY * diffY;
 
-    float rad = cuConstRendererParams.radius[circleIndex];;
+    // float rad = cuConstRendererParams.radius[circleIndex];
     float maxDist = rad * rad;
 
     // circle does not contribute to the image
