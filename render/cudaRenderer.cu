@@ -437,7 +437,7 @@ shadePixelSnow(int circleIndex, float2 pixelCenter, float3 p, float rad, float4*
 }
 
 __device__ __inline__ void
-shadePixelCircle(int circleIndex, float2 pixelCenter, float3 p, float3 rgb, float rad, float4* imagePtr) {
+shadePixelCircle(float2 pixelCenter, float3 p, float3 rgb, float rad, float4* imagePtr) {
 
     float diffX = p.x - pixelCenter.x;
     float diffY = p.y - pixelCenter.y;
@@ -749,9 +749,9 @@ __global__ void kernelPerBlockCircle(){
     //      serial for every overlap circle
     //             shadepixel
     
-    __shared__ float3 colors [1024];
-    __shared__ float3 positions[1024];
-    __shared__ float radii[1024]; 
+    // __shared__ float3 colors [1024];
+    // __shared__ float3 positions[1024];
+    // __shared__ float radii[1024]; 
     __shared__ bool inc [1024];
     const int numCircles = cuConstRendererParams.numCircles;
     short imageWidth = cuConstRendererParams.imageWidth;
@@ -781,15 +781,14 @@ __global__ void kernelPerBlockCircle(){
     for(int j = 0; j < ((numCircles+1023)/1024); j++){
         int offset = j*1024;
         int index3 = (index +offset) * 3;
+        // if(index + offset < numCircles){
+        //     populate_positions(index, index3, positions);
+        //     populate_radii(index, index + offset, radii);
+        // }
         if(index + offset < numCircles){
-            populate_positions(index, index3, positions);
-            populate_radii(index, index + offset, radii);
-        }
-        __syncthreads();
-        if(index + offset < numCircles){
-            populate_colors(index, index3, colors);
-            float3 p = positions[index];
-            inc[index] = static_cast<bool>(circleInBoxConservative(p.x, p.y, radii[index], L, R, T, B));
+            // populate_colors(index, index3, colors);
+            float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+            inc[index] = static_cast<bool>(circleInBoxConservative(p.x, p.y, cuConstRendererParams.radius[index + offset], L, R, T, B));
         }
         __syncthreads();
         //get bounds of current block, maybe make into shared constant
@@ -804,10 +803,10 @@ __global__ void kernelPerBlockCircle(){
                     if(inc[i]){
                         //shadePixel
                         // float  rad = cuConstRendererParams.radius[i + offset];
-                        float3 p = positions[i];
-                        float3 rgb = colors[i];
-                        float rad = radii[i];
-                        shadePixelCircle((i + offset), pixelCenterNorm, p, rgb, rad, imgPtr);
+                        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+                        float3 rgb = *(float3*)(&cuConstRendererParams.color[index3]);
+                        float rad = cuConstRendererParams.radius[index + offset];
+                        shadePixelCircle(pixelCenterNorm, p, rgb, rad, imgPtr);
                     }
                 }
                 
