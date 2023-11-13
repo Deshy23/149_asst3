@@ -803,9 +803,9 @@ __global__ void kernelPerBlockCircle(){
                     if(inc[i]){
                         //shadePixel
                         // float  rad = cuConstRendererParams.radius[i + offset];
-                        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
-                        float3 rgb = *(float3*)(&cuConstRendererParams.color[index3]);
-                        float rad = cuConstRendererParams.radius[index + offset];
+                        float3 p = *(float3*)(&cuConstRendererParams.position[(i+offset)*3]);
+                        float3 rgb = *(float3*)(&cuConstRendererParams.color[(i+offset)*3]);
+                        float rad = cuConstRendererParams.radius[i + offset];
                         shadePixelCircle(pixelCenterNorm, p, rgb, rad, imgPtr);
                     }
                 }
