@@ -298,8 +298,10 @@ int find_repeats(int* device_input, int length, int* device_output) {
     int *input1 = (int *)malloc(N * sizeof(int));
     cudaMemcpy(input1, device_output, N * sizeof(int), cudaMemcpyDeviceToHost);
     cudaDeviceSynchronize();
-    printf("%d", device_output[0]);
+    
     exclusive_scan(input1, length, input1);
+    cudaDeviceSynchronize();
+    printf("%d", device_output[0]);
     return input1[length - 1]; 
 }
 
