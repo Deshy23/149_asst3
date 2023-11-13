@@ -294,7 +294,7 @@ int find_repeats(int* device_input, int length, int* device_output) {
     // cudaMemcpy(device_input, input1, N * sizeof(int), cudaMemcpyDeviceToHost);
     // cudaMemcpy(device_input, input1, N * sizeof(int), cudaMemcpyDeviceToHost);
     int blocks = (length + THREADS_PER_BLOCK - 1)/THREADS_PER_BLOCK;
-    kernelcompare<<<blocks, THREADS_PER_BLOCK>>>(N, device_input, device_input, device_output);
+    kernelcompare<<<blocks, THREADS_PER_BLOCK>>>(length, device_input, device_input, device_output);
     int *input1 = (int *)malloc(N * sizeof(int));
     cudaMemcpy(input1, device_output, N * sizeof(int), cudaMemcpyDeviceToHost);
     exclusive_scan(input1, length, input1);
