@@ -1131,7 +1131,7 @@ CudaRenderer::render() {
         kernelPerBlockCircle<<<gridDim, blockDim>>>();
     }
     else{
-        kernelPerBlockSingle<<<gridDim, blockDim>>>();
+        kernelPerBlockCircleSingle<<<gridDim, blockDim>>>();
     }
     cudaDeviceSynchronize();
 }
