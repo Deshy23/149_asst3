@@ -385,7 +385,7 @@ shadePixel(int circleIndex, float2 pixelCenter, float3 p, float4* imagePtr) {
 }
 
 __device__ __inline__ void
-shadePixelCircle(int circleIndex, float2 pixelCenter, float3 p, float3 rgb,float4* imagePtr) {
+shadePixelCircle(int circleIndex, float2 pixelCenter, float3 p, float3 rgb, float rad, float4* imagePtr) {
 
     float diffX = p.x - pixelCenter.x;
     float diffY = p.y - pixelCenter.y;
@@ -684,7 +684,8 @@ __global__ void kernelPerBlock_new(){
                         // float  rad = cuConstRendererParams.radius[i + offset];
                         float3 p = positions[i];
                         float3 rgb = colors[i];
-                        shadePixelCircle((i + offset), pixelCenterNorm, p, rgb, imgPtr);
+                        float rad = radii[i];
+                        shadePixelCircle((i + offset), pixelCenterNorm, p, rgb, rad, imgPtr);
                     }
                 }
                 
