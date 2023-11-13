@@ -253,7 +253,7 @@ double cudaScanThrust(int* inarray, int* end, int* resultarray) {
 __global__ void
 kernelcompare(int N, int* input1, int* input2, int* output) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if(i > N-1){
+    if(i >+ N-1){
         return;
     }
     output[i] = (input1[i] == input2[i + 1]);
